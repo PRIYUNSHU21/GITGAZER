@@ -52,8 +52,8 @@ A comprehensive Flutter-based Progressive Web App for analyzing GitHub repositor
 ### Installation
 ```bash
 # Clone repository
-git clone https://github.com/YOUR_USERNAME/REPOSITORY_NAME.git
-cd github-analyzer-frontend
+git clone https://github.com/PRIYUNSHU21/GITGAZER.git
+cd GITGAZER
 
 # Install dependencies
 flutter pub get
@@ -128,10 +128,10 @@ GITHUB_ANALYZER_FRONTEND/
 
 ## 📊 Repository Statistics
 
-![GitHub stars](https://img.shields.io/github/stars/YOUR_USERNAME/REPOSITORY_NAME?style=social)
-![GitHub forks](https://img.shields.io/github/forks/YOUR_USERNAME/REPOSITORY_NAME?style=social)
-![GitHub issues](https://img.shields.io/github/issues/YOUR_USERNAME/REPOSITORY_NAME)
-![GitHub license](https://img.shields.io/github/license/YOUR_USERNAME/REPOSITORY_NAME)
+![GitHub stars](https://img.shields.io/github/stars/PRIYUNSHU21/GITGAZER?style=social)
+![GitHub forks](https://img.shields.io/github/forks/PRIYUNSHU21/GITGAZER?style=social)
+![GitHub issues](https://img.shields.io/github/issues/PRIYUNSHU21/GITGAZER)
+![GitHub license](https://img.shields.io/github/license/PRIYUNSHU21/GITGAZER)
 
 ---
 
