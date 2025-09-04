@@ -1,0 +1,27 @@
+{
+    "name": "GITGAZER - GitHub Repository Analyzer",
+    "short_name": "GITGAZER",
+    "description": "Analyze GitHub repositories with AI-powered insights using GITGAZER",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#1C1B1F",
+    "theme_color": "#4FC3F7",
+    "orientation": "portrait-primary",
+    "scope": "/",
+    "lang": "en",
+    "categories": ["developer", "productivity", "utilities"],
+    "icons": [
+        {
+            "src": "icons/Icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "icons/Icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ]
+}
