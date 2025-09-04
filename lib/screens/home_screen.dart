@@ -104,6 +104,15 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          Navigator.pushNamed(context, '/bookmarks');
+        },
+        icon: const Icon(Icons.bookmark),
+        label: const Text('Bookmarks'),
+        backgroundColor: theme.colorScheme.primary,
+        foregroundColor: theme.colorScheme.onPrimary,
+      ),
       body: FadeTransition(
         opacity: _fadeAnimation,
         child: SingleChildScrollView(

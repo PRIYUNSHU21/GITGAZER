@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../core/constants/app_constants.dart';
 import '../core/constants/design_tokens.dart';
 import '../core/services/github_service.dart';
 import '../core/services/api_service.dart';
 import '../models/repository_analysis.dart';
+import '../models/bookmark.dart';
+import '../providers/bookmark_provider.dart';
 import '../widgets/common/loading_widget.dart';
 import '../widgets/common/error_widget.dart';
 import '../widgets/cards/stats_card.dart';
@@ -107,6 +110,27 @@ class _DashboardScreenState extends State<DashboardScreen>
       if (await canLaunchUrl(url)) {
         await launchUrl(url);
       }
+    }
+  }
+
+  Future<void> _toggleBookmark(BookmarkProvider bookmarkProvider) async {
+    if (_analysis == null) return;
+
+    final bookmark = BookmarkedRepository.fromAnalysis(_analysis!);
+    final success = await bookmarkProvider.toggleBookmark(bookmark);
+
+    if (success && mounted) {
+      final isBookmarked =
+          bookmarkProvider.isBookmarked(widget.owner, widget.repo);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            isBookmarked ? 'Repository bookmarked!' : 'Bookmark removed!',
+          ),
+          backgroundColor: isBookmarked ? Colors.green : Colors.orange,
+          duration: const Duration(seconds: 2),
+        ),
+      );
     }
   }
 
@@ -404,7 +428,29 @@ class _DashboardScreenState extends State<DashboardScreen>
               ),
             ),
             actions: [
-              if (_analysis != null)
+              if (_analysis != null) ...[
+                // Bookmark Button
+                Consumer<BookmarkProvider>(
+                  builder: (context, bookmarkProvider, child) {
+                    final isBookmarked = bookmarkProvider.isBookmarked(
+                        widget.owner, widget.repo);
+
+                    return IconButton(
+                      icon: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: DesignTokens.glassmorphism(context),
+                        child: Icon(
+                          isBookmarked ? Icons.bookmark : Icons.bookmark_border,
+                          color: isBookmarked ? Colors.amber : Colors.white,
+                        ),
+                      ),
+                      onPressed: () => _toggleBookmark(bookmarkProvider),
+                      tooltip:
+                          isBookmarked ? 'Remove Bookmark' : 'Add Bookmark',
+                    );
+                  },
+                ),
+                // GitHub Button
                 IconButton(
                   icon: Container(
                     padding: const EdgeInsets.all(8),
@@ -414,6 +460,8 @@ class _DashboardScreenState extends State<DashboardScreen>
                   onPressed: _openInGitHub,
                   tooltip: 'Open in GitHub',
                 ),
+              ],
+              // Refresh Button
               IconButton(
                 icon: Container(
                   padding: const EdgeInsets.all(8),
