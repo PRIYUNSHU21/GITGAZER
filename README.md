@@ -3,7 +3,7 @@
 **Track: Progressive Web App (PWA) - Flutter Implementation**
 
 > 🌐 **Live PWA**: [**GITGAZER - Try it Now!**](https://gitgazer.netlify.app)  
-> 🎥 **Demo Video**: [**Watch 3-Minute Demo**](https://www.youtube.com/watch?v=YOUR_VIDEO_ID)
+> 🎥 **Demo Video**: [**Watch 3-Minute Demo**](https://youtu.be/Ep_Dd_t0m-4)
 
 A comprehensive Flutter-based Progressive Web App for analyzing GitHub repositories with AI-powered insights. This project demonstrates that Flutter can achieve the same PWA capabilities as traditional web frameworks.
 
