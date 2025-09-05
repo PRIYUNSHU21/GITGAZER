@@ -1,239 +1,176 @@
-import 'package:flutter/foundation.dart';
-import 'package:hive_flutter/hive_flutter.dart';
+import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import '../models/bookmark.dart';
+import '../models/repository_analysis.dart';
 
 class BookmarkProvider with ChangeNotifier {
   static const String _boxName = 'bookmarks';
-  static const String _tagsBoxName = 'bookmark_tags';
-
-  Box<BookmarkedRepository>? _bookmarkBox;
-  Box<String>? _tagsBox;
-
+  Box<BookmarkedRepository>? _box;
   List<BookmarkedRepository> _bookmarks = [];
-  Set<String> _availableTags = {};
-  bool _isInitialized = false;
+  List<String> _availableTags = [];
+  String _searchQuery = '';
+  String? _selectedTag;
 
   // Getters
-  List<BookmarkedRepository> get bookmarks => List.unmodifiable(_bookmarks);
-  Set<String> get availableTags => Set.unmodifiable(_availableTags);
-  bool get isInitialized => _isInitialized;
-  int get bookmarkCount => _bookmarks.length;
+  List<BookmarkedRepository> get bookmarks => _filteredBookmarks();
+  List<String> get availableTags => _availableTags;
+  String get searchQuery => _searchQuery;
+  String? get selectedTag => _selectedTag;
+  bool get hasBookmarks => _bookmarks.isNotEmpty;
 
-  // Initialize Hive
   Future<void> initialize() async {
-    if (_isInitialized) return;
-
     try {
-      await Hive.initFlutter();
-
-      // Register adapters
+      // Register the adapter if not already registered
       if (!Hive.isAdapterRegistered(0)) {
         Hive.registerAdapter(BookmarkedRepositoryAdapter());
       }
 
-      // Open boxes
-      _bookmarkBox = await Hive.openBox<BookmarkedRepository>(_boxName);
-      _tagsBox = await Hive.openBox<String>(_tagsBoxName);
-
-      // Load data
-      await _loadBookmarks();
-      await _loadTags();
-
-      _isInitialized = true;
-      notifyListeners();
+      _box = await Hive.openBox<BookmarkedRepository>(_boxName);
+      _loadBookmarks();
     } catch (e) {
-      if (kDebugMode) {
-        print('Error initializing BookmarkProvider: $e');
+      debugPrint('Error initializing BookmarkProvider: $e');
+    }
+  }
+
+  void _loadBookmarks() {
+    if (_box == null) return;
+
+    _bookmarks = _box!.values.toList();
+    _updateAvailableTags();
+    notifyListeners();
+  }
+
+  void _updateAvailableTags() {
+    final tags = <String>{};
+    for (final bookmark in _bookmarks) {
+      tags.addAll(bookmark.tags);
+    }
+    _availableTags = tags.toList()..sort();
+  }
+
+  List<BookmarkedRepository> _filteredBookmarks() {
+    var filtered = _bookmarks;
+
+    // Filter by search query
+    if (_searchQuery.isNotEmpty) {
+      filtered = filtered.where((bookmark) {
+        return bookmark.name
+                .toLowerCase()
+                .contains(_searchQuery.toLowerCase()) ||
+            bookmark.owner.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+            bookmark.description
+                .toLowerCase()
+                .contains(_searchQuery.toLowerCase()) ||
+            bookmark.language
+                .toLowerCase()
+                .contains(_searchQuery.toLowerCase());
+      }).toList();
+    }
+
+    // Filter by selected tag
+    if (_selectedTag != null && _selectedTag!.isNotEmpty) {
+      filtered = filtered
+          .where((bookmark) => bookmark.tags.contains(_selectedTag))
+          .toList();
+    }
+
+    // Sort by bookmarked date (newest first)
+    filtered.sort((a, b) => b.bookmarkedAt.compareTo(a.bookmarkedAt));
+
+    return filtered;
+  }
+
+  Future<void> addBookmark(RepositoryAnalysis analysis,
+      {List<String>? tags}) async {
+    if (_box == null) return;
+
+    // Check if already bookmarked
+    if (isBookmarked(analysis.owner, analysis.repo)) {
+      return;
+    }
+
+    final bookmark = BookmarkedRepository.fromAnalysis(analysis);
+    if (tags != null) {
+      bookmark.tags.addAll(tags);
+    }
+
+    await _box!.add(bookmark);
+    _loadBookmarks();
+  }
+
+  Future<void> removeBookmark(String owner, String repo) async {
+    if (_box == null) return;
+
+    final key = _box!.keys.firstWhere(
+      (key) {
+        final bookmark = _box!.get(key);
+        return bookmark?.owner == owner && bookmark?.repo == repo;
+      },
+      orElse: () => null,
+    );
+
+    if (key != null) {
+      await _box!.delete(key);
+      _loadBookmarks();
+    }
+  }
+
+  Future<void> updateBookmarkTags(
+      String owner, String repo, List<String> tags) async {
+    if (_box == null) return;
+
+    final key = _box!.keys.firstWhere(
+      (key) {
+        final bookmark = _box!.get(key);
+        return bookmark?.owner == owner && bookmark?.repo == repo;
+      },
+      orElse: () => null,
+    );
+
+    if (key != null) {
+      final bookmark = _box!.get(key);
+      if (bookmark != null) {
+        bookmark.tags = tags;
+        await bookmark.save();
+        _loadBookmarks();
       }
     }
   }
 
-  Future<void> _loadBookmarks() async {
-    if (_bookmarkBox == null) return;
-
-    _bookmarks = _bookmarkBox!.values.toList();
-    _bookmarks.sort((a, b) => b.bookmarkedAt.compareTo(a.bookmarkedAt));
-  }
-
-  Future<void> _loadTags() async {
-    if (_tagsBox == null) return;
-
-    _availableTags = _tagsBox!.values.toSet();
-  }
-
-  // Check if repository is bookmarked
-  bool isBookmarked(String owner, String name) {
-    return _bookmarks.any((bookmark) =>
-        bookmark.owner.toLowerCase() == owner.toLowerCase() &&
-        bookmark.name.toLowerCase() == name.toLowerCase());
-  }
-
-  // Add bookmark
-  Future<bool> addBookmark(BookmarkedRepository bookmark) async {
-    if (_bookmarkBox == null || isBookmarked(bookmark.owner, bookmark.name)) {
-      return false;
-    }
-
-    try {
-      await _bookmarkBox!.add(bookmark);
-      _bookmarks.insert(0, bookmark);
-
-      // Add tags to available tags
-      for (String tag in bookmark.tags) {
-        if (tag.isNotEmpty && !_availableTags.contains(tag)) {
-          _availableTags.add(tag);
-          await _tagsBox?.add(tag);
-        }
-      }
-
-      notifyListeners();
-      return true;
-    } catch (e) {
-      if (kDebugMode) {
-        print('Error adding bookmark: $e');
-      }
-      return false;
-    }
-  }
-
-  // Remove bookmark
-  Future<bool> removeBookmark(String owner, String name) async {
-    if (_bookmarkBox == null) return false;
-
-    try {
-      final index = _bookmarks.indexWhere((bookmark) =>
-          bookmark.owner.toLowerCase() == owner.toLowerCase() &&
-          bookmark.name.toLowerCase() == name.toLowerCase());
-
-      if (index == -1) return false;
-
-      final bookmark = _bookmarks[index];
-      await bookmark.delete();
-      _bookmarks.removeAt(index);
-
-      notifyListeners();
-      return true;
-    } catch (e) {
-      if (kDebugMode) {
-        print('Error removing bookmark: $e');
-      }
-      return false;
-    }
-  }
-
-  // Toggle bookmark
-  Future<bool> toggleBookmark(BookmarkedRepository bookmark) async {
-    if (isBookmarked(bookmark.owner, bookmark.name)) {
-      return await removeBookmark(bookmark.owner, bookmark.name);
-    } else {
-      return await addBookmark(bookmark);
-    }
-  }
-
-  // Update bookmark tags
-  Future<bool> updateBookmarkTags(
-      String owner, String name, List<String> newTags) async {
-    if (_bookmarkBox == null) return false;
-
-    try {
-      final index = _bookmarks.indexWhere((bookmark) =>
-          bookmark.owner.toLowerCase() == owner.toLowerCase() &&
-          bookmark.name.toLowerCase() == name.toLowerCase());
-
-      if (index == -1) return false;
-
-      final bookmark = _bookmarks[index];
-      final updatedBookmark = bookmark.copyWith(tags: newTags);
-
-      await bookmark.delete();
-      await _bookmarkBox!.add(updatedBookmark);
-
-      _bookmarks[index] = updatedBookmark;
-
-      // Update available tags
-      for (String tag in newTags) {
-        if (tag.isNotEmpty && !_availableTags.contains(tag)) {
-          _availableTags.add(tag);
-          await _tagsBox?.add(tag);
-        }
-      }
-
-      notifyListeners();
-      return true;
-    } catch (e) {
-      if (kDebugMode) {
-        print('Error updating bookmark tags: $e');
-      }
-      return false;
-    }
-  }
-
-  // Get bookmarks by tag
-  List<BookmarkedRepository> getBookmarksByTag(String tag) {
-    return _bookmarks.where((bookmark) => bookmark.tags.contains(tag)).toList();
-  }
-
-  // Get bookmarks by language
-  List<BookmarkedRepository> getBookmarksByLanguage(String language) {
+  bool isBookmarked(String owner, String repo) {
     return _bookmarks
-        .where((bookmark) =>
-            bookmark.language?.toLowerCase() == language.toLowerCase())
-        .toList();
+        .any((bookmark) => bookmark.owner == owner && bookmark.repo == repo);
   }
 
-  // Search bookmarks
-  List<BookmarkedRepository> searchBookmarks(String query) {
-    if (query.isEmpty) return _bookmarks;
-
-    final lowercaseQuery = query.toLowerCase();
-    return _bookmarks
-        .where((bookmark) =>
-            bookmark.name.toLowerCase().contains(lowercaseQuery) ||
-            bookmark.owner.toLowerCase().contains(lowercaseQuery) ||
-            bookmark.description?.toLowerCase().contains(lowercaseQuery) ==
-                true ||
-            bookmark.tags
-                .any((tag) => tag.toLowerCase().contains(lowercaseQuery)))
-        .toList();
+  void setSearchQuery(String query) {
+    _searchQuery = query;
+    notifyListeners();
   }
 
-  // Clear all bookmarks
+  void setSelectedTag(String? tag) {
+    _selectedTag = tag;
+    notifyListeners();
+  }
+
+  void clearFilters() {
+    _searchQuery = '';
+    _selectedTag = null;
+    notifyListeners();
+  }
+
+  BookmarkedRepository? getBookmark(String owner, String repo) {
+    try {
+      return _bookmarks.firstWhere(
+          (bookmark) => bookmark.owner == owner && bookmark.repo == repo);
+    } catch (e) {
+      return null;
+    }
+  }
+
   Future<void> clearAllBookmarks() async {
-    if (_bookmarkBox == null) return;
+    if (_box == null) return;
 
-    try {
-      await _bookmarkBox!.clear();
-      _bookmarks.clear();
-      notifyListeners();
-    } catch (e) {
-      if (kDebugMode) {
-        print('Error clearing bookmarks: $e');
-      }
-    }
-  }
-
-  // Export bookmarks as JSON
-  List<Map<String, dynamic>> exportBookmarks() {
-    return _bookmarks
-        .map((bookmark) => {
-              'owner': bookmark.owner,
-              'name': bookmark.name,
-              'description': bookmark.description,
-              'language': bookmark.language,
-              'stars': bookmark.stars,
-              'forks': bookmark.forks,
-              'bookmarkedAt': bookmark.bookmarkedAt.toIso8601String(),
-              'tags': bookmark.tags,
-              'avatarUrl': bookmark.avatarUrl,
-              'githubUrl': bookmark.githubUrl,
-            })
-        .toList();
-  }
-
-  @override
-  void dispose() {
-    _bookmarkBox?.close();
-    _tagsBox?.close();
-    super.dispose();
+    await _box!.clear();
+    _loadBookmarks();
   }
 }

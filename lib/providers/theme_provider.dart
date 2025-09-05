@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 
 class ThemeProvider with ChangeNotifier {
   ThemeMode _themeMode = ThemeMode.dark; // Default to dark theme
   bool _isLoaded = false;
+  static const String _themeBoxName = 'theme_settings';
+  static const String _themeModeKey = 'theme_mode';
 
   // Getters
   ThemeMode get themeMode => _themeMode;
@@ -11,24 +14,24 @@ class ThemeProvider with ChangeNotifier {
   bool get isSystemMode => _themeMode == ThemeMode.system;
   bool get isLoaded => _isLoaded;
 
-  // Load theme preference from storage
+  // Load theme preference from Hive storage
   Future<void> loadThemePreference() async {
     if (_isLoaded) return;
 
     try {
-      // For now, we'll use dark theme as default
-      // When shared_preferences is available, uncomment the code below:
-      /*
-      final prefs = await SharedPreferences.getInstance();
-      final themeIndex = prefs.getInt(_themeKey) ?? 2; // Default to dark (index 2)
-      _themeMode = ThemeMode.values[themeIndex];
-      */
+      // Open the theme settings box
+      final box = await Hive.openBox(_themeBoxName);
 
-      _themeMode = ThemeMode.dark;
+      // Get saved theme mode (default to dark mode if not found)
+      final themeIndex =
+          box.get(_themeModeKey, defaultValue: ThemeMode.dark.index);
+      _themeMode = ThemeMode.values[themeIndex];
+
       _isLoaded = true;
       notifyListeners();
     } catch (e) {
       // If loading fails, use dark theme as default
+      debugPrint('Failed to load theme preference: $e');
       _themeMode = ThemeMode.dark;
       _isLoaded = true;
       notifyListeners();
@@ -78,14 +81,11 @@ class ThemeProvider with ChangeNotifier {
     }
   }
 
-  // Private method to save theme preference
+  // Private method to save theme preference to Hive
   Future<void> _saveThemePreference() async {
     try {
-      // When shared_preferences is available, uncomment the code below:
-      /*
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setInt(_themeKey, _themeMode.index);
-      */
+      final box = await Hive.openBox(_themeBoxName);
+      await box.put(_themeModeKey, _themeMode.index);
     } catch (e) {
       // Handle save error silently
       debugPrint('Failed to save theme preference: $e');

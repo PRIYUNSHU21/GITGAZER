@@ -26,13 +26,27 @@ class FeatureCards extends StatelessWidget {
                 constraints.maxWidth > 768 && constraints.maxWidth <= 1024;
 
             if (isDesktopLayout) {
-              return Row(
+              return Column(
                 children: [
-                  Expanded(child: _buildFeatureCard(context, _features[0])),
-                  const SizedBox(width: DesignTokens.space4),
-                  Expanded(child: _buildFeatureCard(context, _features[1])),
-                  const SizedBox(width: DesignTokens.space4),
-                  Expanded(child: _buildFeatureCard(context, _features[2])),
+                  Row(
+                    children: [
+                      Expanded(child: _buildFeatureCard(context, _features[0])),
+                      const SizedBox(width: DesignTokens.space4),
+                      Expanded(child: _buildFeatureCard(context, _features[1])),
+                      const SizedBox(width: DesignTokens.space4),
+                      Expanded(child: _buildFeatureCard(context, _features[2])),
+                    ],
+                  ),
+                  const SizedBox(height: DesignTokens.space4),
+                  Row(
+                    children: [
+                      Expanded(child: _buildFeatureCard(context, _features[3])),
+                      const SizedBox(width: DesignTokens.space4),
+                      Expanded(child: _buildFeatureCard(context, _features[4])),
+                      const SizedBox(width: DesignTokens.space4),
+                      const Spacer(),
+                    ],
+                  ),
                 ],
               );
             } else if (isTablet) {
@@ -46,7 +60,15 @@ class FeatureCards extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: DesignTokens.space4),
-                  _buildFeatureCard(context, _features[2]),
+                  Row(
+                    children: [
+                      Expanded(child: _buildFeatureCard(context, _features[2])),
+                      const SizedBox(width: DesignTokens.space4),
+                      Expanded(child: _buildFeatureCard(context, _features[3])),
+                    ],
+                  ),
+                  const SizedBox(height: DesignTokens.space4),
+                  _buildFeatureCard(context, _features[4]),
                 ],
               );
             } else {
@@ -154,6 +176,22 @@ class FeatureCards extends StatelessWidget {
           'Understand team dynamics, contribution patterns, and collaboration metrics to improve project management.',
       color: Colors.green,
       tags: ['Team Analytics', 'Collaboration', 'Metrics'],
+    ),
+    FeatureData(
+      icon: Icons.bookmark_border,
+      title: 'Bookmark Repositories',
+      description:
+          'Save and organize your favorite repositories for quick access and easy management of your GitHub discoveries.',
+      color: Colors.orange,
+      tags: ['Favorites', 'Organization', 'Quick Access'],
+    ),
+    FeatureData(
+      icon: Icons.compare_arrows,
+      title: 'Compare Repositories',
+      description:
+          'Side-by-side comparison of multiple repositories to analyze differences, similarities, and make informed decisions.',
+      color: Colors.teal,
+      tags: ['Comparison', 'Analysis', 'Decision Making'],
     ),
   ];
 }

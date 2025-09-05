@@ -49,8 +49,6 @@ class LanguageComparisonChart extends StatelessWidget {
     List<MapEntry<String, double>> langs1,
     List<MapEntry<String, double>> langs2,
   ) {
-    final isMobile = MediaQuery.of(context).size.width < 768;
-
     return Container(
       padding: const EdgeInsets.all(DesignTokens.space6),
       decoration: DesignTokens.glassmorphism(
@@ -62,45 +60,27 @@ class LanguageComparisonChart extends StatelessWidget {
         children: [
           _buildSectionHeader(context, 'Language Distribution'),
           const SizedBox(height: DesignTokens.space6),
-          isMobile
-              ? Column(
-                  children: [
-                    _buildPieChart(
-                      context,
-                      analysis1.fullName,
-                      langs1,
-                      Theme.of(context).colorScheme.primary,
-                    ),
-                    const SizedBox(height: DesignTokens.space4),
-                    _buildPieChart(
-                      context,
-                      analysis2.fullName,
-                      langs2,
-                      Theme.of(context).colorScheme.secondary,
-                    ),
-                  ],
-                )
-              : Row(
-                  children: [
-                    Expanded(
-                      child: _buildPieChart(
-                        context,
-                        analysis1.fullName,
-                        langs1,
-                        Theme.of(context).colorScheme.primary,
-                      ),
-                    ),
-                    const SizedBox(width: DesignTokens.space6),
-                    Expanded(
-                      child: _buildPieChart(
-                        context,
-                        analysis2.fullName,
-                        langs2,
-                        Theme.of(context).colorScheme.secondary,
-                      ),
-                    ),
-                  ],
+          Row(
+            children: [
+              Expanded(
+                child: _buildPieChart(
+                  context,
+                  analysis1.fullName,
+                  langs1,
+                  Theme.of(context).colorScheme.primary,
                 ),
+              ),
+              const SizedBox(width: DesignTokens.space6),
+              Expanded(
+                child: _buildPieChart(
+                  context,
+                  analysis2.fullName,
+                  langs2,
+                  Theme.of(context).colorScheme.secondary,
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );

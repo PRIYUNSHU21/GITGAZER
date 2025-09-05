@@ -137,50 +137,29 @@ class _ComparisonResultsState extends State<ComparisonResults>
   }
 
   Widget _buildRepositoryTitles(ThemeData theme) {
-    final isMobile = MediaQuery.of(context).size.width < 768;
-
     return Padding(
-      padding: EdgeInsets.symmetric(
-          horizontal: isMobile ? DesignTokens.space4 : DesignTokens.space6),
-      child: isMobile
-          ? Column(
-              children: [
-                _buildRepoTitle(
-                  theme,
-                  widget.analysis1,
-                  theme.colorScheme.primary,
-                  'Repository 1',
-                ),
-                const SizedBox(height: DesignTokens.space3),
-                _buildRepoTitle(
-                  theme,
-                  widget.analysis2,
-                  theme.colorScheme.secondary,
-                  'Repository 2',
-                ),
-              ],
-            )
-          : Row(
-              children: [
-                Expanded(
-                  child: _buildRepoTitle(
-                    theme,
-                    widget.analysis1,
-                    theme.colorScheme.primary,
-                    'Repository 1',
-                  ),
-                ),
-                const SizedBox(width: DesignTokens.space4),
-                Expanded(
-                  child: _buildRepoTitle(
-                    theme,
-                    widget.analysis2,
-                    theme.colorScheme.secondary,
-                    'Repository 2',
-                  ),
-                ),
-              ],
+      padding: const EdgeInsets.symmetric(horizontal: DesignTokens.space6),
+      child: Row(
+        children: [
+          Expanded(
+            child: _buildRepoTitle(
+              theme,
+              widget.analysis1,
+              theme.colorScheme.primary,
+              'Repository 1',
             ),
+          ),
+          const SizedBox(width: DesignTokens.space4),
+          Expanded(
+            child: _buildRepoTitle(
+              theme,
+              widget.analysis2,
+              theme.colorScheme.secondary,
+              'Repository 2',
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -190,11 +169,8 @@ class _ComparisonResultsState extends State<ComparisonResults>
     Color color,
     String label,
   ) {
-    final isMobile = MediaQuery.of(context).size.width < 768;
-
     return Container(
-      padding:
-          EdgeInsets.all(isMobile ? DesignTokens.space3 : DesignTokens.space4),
+      padding: const EdgeInsets.all(DesignTokens.space4),
       decoration: BoxDecoration(
         color: color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
@@ -210,7 +186,6 @@ class _ComparisonResultsState extends State<ComparisonResults>
             style: theme.textTheme.labelSmall?.copyWith(
               color: color,
               fontWeight: FontWeight.w600,
-              fontSize: isMobile ? 10 : null,
             ),
           ),
           const SizedBox(height: DesignTokens.space1),
@@ -219,10 +194,7 @@ class _ComparisonResultsState extends State<ComparisonResults>
             style: theme.textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.bold,
               color: theme.colorScheme.onSurface,
-              fontSize: isMobile ? 14 : null,
             ),
-            overflow: TextOverflow.ellipsis,
-            maxLines: isMobile ? 2 : 1,
           ),
         ],
       ),
@@ -230,20 +202,14 @@ class _ComparisonResultsState extends State<ComparisonResults>
   }
 
   Widget _buildTabBar(ThemeData theme) {
-    final isMobile = MediaQuery.of(context).size.width < 768;
-
     return Container(
-      margin: EdgeInsets.symmetric(
-        horizontal: isMobile ? DesignTokens.space3 : DesignTokens.space6,
-      ),
+      margin: const EdgeInsets.symmetric(horizontal: DesignTokens.space6),
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(DesignTokens.radiusLg),
       ),
       child: TabBar(
         controller: _tabController,
-        isScrollable: false,
-        tabAlignment: TabAlignment.fill,
         indicator: BoxDecoration(
           color: theme.colorScheme.primary,
           borderRadius: BorderRadius.circular(DesignTokens.radiusLg),
@@ -251,32 +217,32 @@ class _ComparisonResultsState extends State<ComparisonResults>
         indicatorSize: TabBarIndicatorSize.tab,
         labelColor: theme.colorScheme.onPrimary,
         unselectedLabelColor: theme.colorScheme.onSurface.withOpacity(0.7),
-        labelStyle: TextStyle(
+        labelStyle: const TextStyle(
           fontWeight: FontWeight.w600,
-          fontSize: isMobile ? 10 : 12,
+          fontSize: 12,
         ),
-        unselectedLabelStyle: TextStyle(
+        unselectedLabelStyle: const TextStyle(
           fontWeight: FontWeight.w500,
-          fontSize: isMobile ? 10 : 12,
+          fontSize: 12,
         ),
-        labelPadding: EdgeInsets.symmetric(
-          horizontal: isMobile ? DesignTokens.space1 : DesignTokens.space2,
-        ),
-        tabs: isMobile
-            ? const [
-                Tab(icon: Icon(Icons.bar_chart, size: 16), text: 'Stats'),
-                Tab(icon: Icon(Icons.code, size: 16), text: 'Lang'),
-                Tab(icon: Icon(Icons.timeline, size: 16), text: 'Activity'),
-                Tab(icon: Icon(Icons.psychology, size: 16), text: 'AI'),
-              ]
-            : const [
-                Tab(icon: Icon(Icons.bar_chart, size: 18), text: 'Stats'),
-                Tab(icon: Icon(Icons.code, size: 18), text: 'Languages'),
-                Tab(icon: Icon(Icons.timeline, size: 18), text: 'Activity'),
-                Tab(
-                    icon: Icon(Icons.psychology, size: 18),
-                    text: 'AI Insights'),
-              ],
+        tabs: const [
+          Tab(
+            icon: Icon(Icons.bar_chart, size: 18),
+            text: 'Stats',
+          ),
+          Tab(
+            icon: Icon(Icons.code, size: 18),
+            text: 'Languages',
+          ),
+          Tab(
+            icon: Icon(Icons.timeline, size: 18),
+            text: 'Activity',
+          ),
+          Tab(
+            icon: Icon(Icons.psychology, size: 18),
+            text: 'AI Insights',
+          ),
+        ],
       ),
     );
   }
@@ -307,67 +273,79 @@ class _ComparisonResultsState extends State<ComparisonResults>
   }
 
   Widget _buildAIInsightsTab() {
-    final isMobile = MediaQuery.of(context).size.width < 768;
-
     return SingleChildScrollView(
-      child: Padding(
-        padding: EdgeInsets.all(
-            isMobile ? DesignTokens.space3 : DesignTokens.space4),
-        child: isMobile
-            ? Column(
-                children: [
-                  _buildAIInsightSection(
-                      'Repository 1', widget.analysis1, isMobile),
-                  const SizedBox(height: DesignTokens.space4),
-                  _buildAIInsightSection(
-                      'Repository 2', widget.analysis2, isMobile),
-                ],
-              )
-            : Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: _buildAIInsightSection(
-                        'Repository 1', widget.analysis1, isMobile),
-                  ),
-                  const SizedBox(width: DesignTokens.space4),
-                  Expanded(
-                    child: _buildAIInsightSection(
-                        'Repository 2', widget.analysis2, isMobile),
-                  ),
-                ],
+      child: Column(
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  children: [
+                    _buildAIInsightHeader('Repository 1', widget.analysis1),
+                    const SizedBox(height: DesignTokens.space4),
+                    Container(
+                      height: 400,
+                      decoration: BoxDecoration(
+                        borderRadius:
+                            BorderRadius.circular(DesignTokens.radiusMd),
+                        border: Border.all(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .outline
+                              .withOpacity(0.2),
+                        ),
+                      ),
+                      child: ClipRRect(
+                        borderRadius:
+                            BorderRadius.circular(DesignTokens.radiusMd),
+                        child: SingleChildScrollView(
+                          padding: const EdgeInsets.all(DesignTokens.space4),
+                          child: EnhancedAiInsights(
+                            aiInsights: widget.analysis1.enhancedAiInsight!,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
+              const SizedBox(width: DesignTokens.space4),
+              Expanded(
+                child: Column(
+                  children: [
+                    _buildAIInsightHeader('Repository 2', widget.analysis2),
+                    const SizedBox(height: DesignTokens.space4),
+                    Container(
+                      height: 400,
+                      decoration: BoxDecoration(
+                        borderRadius:
+                            BorderRadius.circular(DesignTokens.radiusMd),
+                        border: Border.all(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .outline
+                              .withOpacity(0.2),
+                        ),
+                      ),
+                      child: ClipRRect(
+                        borderRadius:
+                            BorderRadius.circular(DesignTokens.radiusMd),
+                        child: SingleChildScrollView(
+                          padding: const EdgeInsets.all(DesignTokens.space4),
+                          child: EnhancedAiInsights(
+                            aiInsights: widget.analysis2.enhancedAiInsight!,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
-    );
-  }
-
-  Widget _buildAIInsightSection(
-      String title, RepositoryAnalysis analysis, bool isMobile) {
-    return Column(
-      children: [
-        _buildAIInsightHeader(title, analysis),
-        const SizedBox(height: DesignTokens.space4),
-        Container(
-          height: isMobile ? 300 : 400,
-          width: double.infinity,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
-            border: Border.all(
-              color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
-            ),
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
-            child: SingleChildScrollView(
-              padding: EdgeInsets.all(
-                  isMobile ? DesignTokens.space3 : DesignTokens.space4),
-              child: EnhancedAiInsights(
-                aiInsights: analysis.enhancedAiInsight!,
-              ),
-            ),
-          ),
-        ),
-      ],
     );
   }
 

@@ -8,6 +8,16 @@ class RepositoryAnalysis {
   final AiInsight aiInsight;
   final EnhancedAiInsight? enhancedAiInsight;
 
+  // Computed properties for BookmarkedRepository compatibility
+  String get name => '$owner/$repo';
+  String get description => stats.description ?? '';
+  int get stars => stats.stars;
+  int get forks => stats.forks;
+  String get primaryLanguage => languages.sortedLanguages.isNotEmpty
+      ? languages.sortedLanguages.first.name
+      : 'Unknown';
+  String? get avatarUrl => stats.avatarUrl;
+
   RepositoryAnalysis({
     required this.owner,
     required this.repo,
@@ -81,6 +91,8 @@ class RepositoryStats {
   final String? license;
   final DateTime? createdAt;
   final DateTime? updatedAt;
+  final String? description;
+  final String? avatarUrl;
 
   RepositoryStats({
     required this.stars,
@@ -89,6 +101,8 @@ class RepositoryStats {
     this.license,
     this.createdAt,
     this.updatedAt,
+    this.description,
+    this.avatarUrl,
   });
 
   factory RepositoryStats.fromJson(Map<String, dynamic> json) {
@@ -97,6 +111,8 @@ class RepositoryStats {
       forks: json['forks'] ?? 0,
       openIssues: json['open_issues'] ?? 0,
       license: json['license'],
+      description: json['description'],
+      avatarUrl: json['avatar_url'],
       createdAt: json['created_at'] != null
           ? DateTime.tryParse(json['created_at'])
           : null,
@@ -112,6 +128,8 @@ class RepositoryStats {
       'forks': forks,
       'open_issues': openIssues,
       'license': license,
+      'description': description,
+      'avatar_url': avatarUrl,
       'created_at': createdAt?.toIso8601String(),
       'updated_at': updatedAt?.toIso8601String(),
     };

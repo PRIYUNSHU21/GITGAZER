@@ -1,4 +1,5 @@
 import 'package:hive/hive.dart';
+import 'repository_analysis.dart';
 
 part 'bookmark.g.dart';
 
@@ -8,13 +9,13 @@ class BookmarkedRepository extends HiveObject {
   String owner;
 
   @HiveField(1)
-  String name;
+  String repo;
 
   @HiveField(2)
-  String? description;
+  String name;
 
   @HiveField(3)
-  String? language;
+  String description;
 
   @HiveField(4)
   int stars;
@@ -23,66 +24,59 @@ class BookmarkedRepository extends HiveObject {
   int forks;
 
   @HiveField(6)
-  DateTime bookmarkedAt;
+  String language;
 
   @HiveField(7)
-  List<String> tags;
+  DateTime bookmarkedAt;
 
   @HiveField(8)
+  List<String> tags;
+
+  @HiveField(9)
   String? avatarUrl;
 
   BookmarkedRepository({
     required this.owner,
+    required this.repo,
     required this.name,
-    this.description,
-    this.language,
-    this.stars = 0,
-    this.forks = 0,
+    required this.description,
+    required this.stars,
+    required this.forks,
+    required this.language,
     required this.bookmarkedAt,
-    this.tags = const [],
+    required this.tags,
     this.avatarUrl,
   });
 
-  String get fullName => '$owner/$name';
-
-  String get githubUrl => 'https://github.com/$owner/$name';
-
-  // Convert from RepositoryAnalysis
-  factory BookmarkedRepository.fromAnalysis(dynamic analysis) {
+  factory BookmarkedRepository.fromAnalysis(RepositoryAnalysis analysis) {
     return BookmarkedRepository(
       owner: analysis.owner,
-      name: analysis.repo,
-      description: null, // RepositoryAnalysis doesn't have description
-      language: analysis.languages.primaryLanguage,
-      stars: analysis.stats.stars,
-      forks: analysis.stats.forks,
+      repo: analysis.repo,
+      name: analysis.name,
+      description: analysis.description,
+      stars: analysis.stars,
+      forks: analysis.forks,
+      language: analysis.primaryLanguage,
       bookmarkedAt: DateTime.now(),
       tags: [],
-      avatarUrl: null, // RepositoryAnalysis doesn't have avatar URL
+      avatarUrl: analysis.avatarUrl,
     );
   }
 
-  BookmarkedRepository copyWith({
-    String? owner,
-    String? name,
-    String? description,
-    String? language,
-    int? stars,
-    int? forks,
-    DateTime? bookmarkedAt,
-    List<String>? tags,
-    String? avatarUrl,
-  }) {
-    return BookmarkedRepository(
-      owner: owner ?? this.owner,
-      name: name ?? this.name,
-      description: description ?? this.description,
-      language: language ?? this.language,
-      stars: stars ?? this.stars,
-      forks: forks ?? this.forks,
-      bookmarkedAt: bookmarkedAt ?? this.bookmarkedAt,
-      tags: tags ?? this.tags,
-      avatarUrl: avatarUrl ?? this.avatarUrl,
-    );
+  String get fullName => '$owner/$repo';
+
+  Map<String, dynamic> toJson() {
+    return {
+      'owner': owner,
+      'repo': repo,
+      'name': name,
+      'description': description,
+      'stars': stars,
+      'forks': forks,
+      'language': language,
+      'bookmarkedAt': bookmarkedAt.toIso8601String(),
+      'tags': tags,
+      'avatarUrl': avatarUrl,
+    };
   }
 }

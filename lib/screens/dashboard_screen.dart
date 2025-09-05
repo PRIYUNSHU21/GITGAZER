@@ -6,7 +6,6 @@ import '../core/constants/design_tokens.dart';
 import '../core/services/github_service.dart';
 import '../core/services/api_service.dart';
 import '../models/repository_analysis.dart';
-import '../models/bookmark.dart';
 import '../providers/bookmark_provider.dart';
 import '../widgets/common/loading_widget.dart';
 import '../widgets/common/error_widget.dart';
@@ -15,6 +14,8 @@ import '../widgets/cards/ai_insight_card.dart';
 import '../widgets/cards/modern_enhanced_ai_insight_card.dart';
 import '../widgets/charts/language_pie_chart.dart';
 import '../widgets/charts/commit_activity_chart.dart';
+import 'bookmarks_screen.dart';
+import 'repository_compare_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   final String owner;
@@ -116,22 +117,52 @@ class _DashboardScreenState extends State<DashboardScreen>
   Future<void> _toggleBookmark(BookmarkProvider bookmarkProvider) async {
     if (_analysis == null) return;
 
-    final bookmark = BookmarkedRepository.fromAnalysis(_analysis!);
-    final success = await bookmarkProvider.toggleBookmark(bookmark);
+    final isBookmarked = bookmarkProvider.isBookmarked(
+      _analysis!.owner,
+      _analysis!.repo,
+    );
 
-    if (success && mounted) {
-      final isBookmarked =
-          bookmarkProvider.isBookmarked(widget.owner, widget.repo);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            isBookmarked ? 'Repository bookmarked!' : 'Bookmark removed!',
+    if (isBookmarked) {
+      await bookmarkProvider.removeBookmark(_analysis!.owner, _analysis!.repo);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Removed ${_analysis!.name} from bookmarks'),
+            duration: const Duration(seconds: 2),
           ),
-          backgroundColor: isBookmarked ? Colors.green : Colors.orange,
-          duration: const Duration(seconds: 2),
-        ),
-      );
+        );
+      }
+    } else {
+      await bookmarkProvider.addBookmark(_analysis!);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Added ${_analysis!.name} to bookmarks'),
+            action: SnackBarAction(
+              label: 'View',
+              onPressed: () => _navigateToBookmarks(context),
+            ),
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
     }
+  }
+
+  void _navigateToBookmarks(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const BookmarksScreen(),
+      ),
+    );
+  }
+
+  void _navigateToCompare(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const RepositoryCompareScreen(),
+      ),
+    );
   }
 
   @override
@@ -146,7 +177,7 @@ class _DashboardScreenState extends State<DashboardScreen>
         slivers: [
           // Modern App Bar with Gradient
           SliverAppBar(
-            expandedHeight: isDesktop ? 230 : 250, // Much taller for mobile
+            expandedHeight: isDesktop ? 210 : 170,
             floating: false,
             pinned: true,
             stretch: true,
@@ -395,31 +426,18 @@ class _DashboardScreenState extends State<DashboardScreen>
                         ),
                         const SizedBox(height: DesignTokens.space4),
                         if (!_isLoading && _analysis != null) ...[
-                          size.width <= 768
-                              ? Wrap(
-                                  spacing: DesignTokens.space3,
-                                  runSpacing: DesignTokens.space2,
-                                  children: [
-                                    _buildQuickStat('Stars',
-                                        _analysis!.stats.stars.toString()),
-                                    _buildQuickStat('Forks',
-                                        _analysis!.stats.forks.toString()),
-                                    _buildQuickStat('Issues',
-                                        _analysis!.stats.openIssues.toString()),
-                                  ],
-                                )
-                              : Row(
-                                  children: [
-                                    _buildQuickStat('Stars',
-                                        _analysis!.stats.stars.toString()),
-                                    const SizedBox(width: DesignTokens.space4),
-                                    _buildQuickStat('Forks',
-                                        _analysis!.stats.forks.toString()),
-                                    const SizedBox(width: DesignTokens.space4),
-                                    _buildQuickStat('Issues',
-                                        _analysis!.stats.openIssues.toString()),
-                                  ],
-                                ),
+                          Row(
+                            children: [
+                              _buildQuickStat(
+                                  'Stars', _analysis!.stats.stars.toString()),
+                              const SizedBox(width: DesignTokens.space4),
+                              _buildQuickStat(
+                                  'Forks', _analysis!.stats.forks.toString()),
+                              const SizedBox(width: DesignTokens.space4),
+                              _buildQuickStat('Issues',
+                                  _analysis!.stats.openIssues.toString()),
+                            ],
+                          ),
                         ],
                       ],
                     ),
@@ -433,15 +451,16 @@ class _DashboardScreenState extends State<DashboardScreen>
                 Consumer<BookmarkProvider>(
                   builder: (context, bookmarkProvider, child) {
                     final isBookmarked = bookmarkProvider.isBookmarked(
-                        widget.owner, widget.repo);
-
+                      _analysis!.owner,
+                      _analysis!.repo,
+                    );
                     return IconButton(
                       icon: Container(
                         padding: const EdgeInsets.all(8),
                         decoration: DesignTokens.glassmorphism(context),
                         child: Icon(
                           isBookmarked ? Icons.bookmark : Icons.bookmark_border,
-                          color: isBookmarked ? Colors.amber : Colors.white,
+                          color: Colors.white,
                         ),
                       ),
                       onPressed: () => _toggleBookmark(bookmarkProvider),
@@ -450,7 +469,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                     );
                   },
                 ),
-                // GitHub Button
+                // Open in GitHub Button
                 IconButton(
                   icon: Container(
                     padding: const EdgeInsets.all(8),
@@ -461,7 +480,26 @@ class _DashboardScreenState extends State<DashboardScreen>
                   tooltip: 'Open in GitHub',
                 ),
               ],
-              // Refresh Button
+              // View Bookmarks Button
+              IconButton(
+                icon: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: DesignTokens.glassmorphism(context),
+                  child: const Icon(Icons.bookmarks, color: Colors.white),
+                ),
+                onPressed: () => _navigateToBookmarks(context),
+                tooltip: 'View Bookmarks',
+              ),
+              // Compare Repositories Button
+              IconButton(
+                icon: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: DesignTokens.glassmorphism(context),
+                  child: const Icon(Icons.compare_arrows, color: Colors.white),
+                ),
+                onPressed: () => _navigateToCompare(context),
+                tooltip: 'Compare Repositories',
+              ),
               IconButton(
                 icon: Container(
                   padding: const EdgeInsets.all(8),
@@ -544,8 +582,7 @@ class _DashboardScreenState extends State<DashboardScreen>
             padding: EdgeInsets.all(
               MediaQuery.of(context).size.width > 1024
                   ? DesignTokens.space8
-                  : DesignTokens
-                      .space4, // Reduced for mobile to give more space
+                  : DesignTokens.space6,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -634,7 +671,7 @@ class _DashboardScreenState extends State<DashboardScreen>
             physics: const NeverScrollableScrollPhysics(),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 4,
-              childAspectRatio: 4.0,
+              childAspectRatio: 2.8, // Increased to prevent overflow
               crossAxisSpacing: DesignTokens.space4,
               mainAxisSpacing: DesignTokens.space4,
             ),
@@ -642,16 +679,18 @@ class _DashboardScreenState extends State<DashboardScreen>
             itemBuilder: (context, index) => _buildStatCard(statsData[index]),
           )
         else
-          // Mobile/Tablet layout - 1 column to prevent overflow
-          Column(
-            children: statsData
-                .map((stat) => Container(
-                      margin:
-                          const EdgeInsets.only(bottom: DesignTokens.space3),
-                      height: 120, // Fixed height to prevent sizing issues
-                      child: _buildStatCard(stat),
-                    ))
-                .toList(),
+          // Mobile layout - 2 columns
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              childAspectRatio: 2.2, // Increased to prevent overflow
+              crossAxisSpacing: DesignTokens.space3,
+              mainAxisSpacing: DesignTokens.space3,
+            ),
+            itemCount: statsData.length,
+            itemBuilder: (context, index) => _buildStatCard(statsData[index]),
           ),
       ],
     );
@@ -663,130 +702,89 @@ class _DashboardScreenState extends State<DashboardScreen>
     final isString = stat['isString'] as bool? ?? false;
 
     return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            color.withOpacity(0.1),
-            color.withOpacity(0.05),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(DesignTokens.radiusXl),
-        border: Border.all(
-          color: color.withOpacity(0.2),
-          width: 1.5,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: color.withOpacity(0.15),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-            spreadRadius: 0,
-          ),
-          BoxShadow(
-            color: theme.colorScheme.shadow.withOpacity(0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-            spreadRadius: -2,
-          ),
-        ],
-      ),
+      decoration: DesignTokens.modernCard(context, elevated: true),
       child: Padding(
-        padding: const EdgeInsets.all(DesignTokens.space4),
-        child: Row(
-          children: [
-            // Left side - Icon
-            Container(
-              padding: const EdgeInsets.all(DesignTokens.space3),
-              decoration: BoxDecoration(
-                color: color.withOpacity(0.15),
-                borderRadius: BorderRadius.circular(DesignTokens.radiusLg),
-                boxShadow: [
-                  BoxShadow(
-                    color: color.withOpacity(0.2),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Icon(
-                stat['icon'] as IconData,
-                color: color,
-                size: 24,
-              ),
-            ),
-
-            const SizedBox(width: DesignTokens.space4),
-
-            // Middle - Value and Label
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    isString
-                        ? stat['value'].toString()
-                        : _formatNumber(stat['value'] as int),
-                    style: theme.textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.w800,
-                      color: color,
-                      fontSize: isString ? 20 : 28,
-                      height: 1.0,
+        padding: const EdgeInsets.all(DesignTokens.space3),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                // Top row with icon and live indicator
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(DesignTokens.space2),
+                      decoration: BoxDecoration(
+                        color: color.withOpacity(0.1),
+                        borderRadius:
+                            BorderRadius.circular(DesignTokens.radiusSm),
+                      ),
+                      child: Icon(
+                        stat['icon'] as IconData,
+                        color: color,
+                        size: 18,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: DesignTokens.space1),
-                  Text(
-                    stat['label'] as String,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: theme.colorScheme.onSurface.withOpacity(0.8),
-                      fontWeight: FontWeight.w600,
-                      fontSize: 14,
+                    const Spacer(),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: DesignTokens.space2,
+                        vertical: DesignTokens.space1,
+                      ),
+                      decoration: BoxDecoration(
+                        color: color.withOpacity(0.1),
+                        borderRadius:
+                            BorderRadius.circular(DesignTokens.radiusFull),
+                      ),
+                      child: Text(
+                        'LIVE',
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: color,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 10,
+                        ),
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            ),
-
-            // Right side - Live indicator
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: DesignTokens.space3,
-                vertical: DesignTokens.space2,
-              ),
-              decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(DesignTokens.radiusFull),
-                border: Border.all(
-                  color: color.withOpacity(0.3),
-                  width: 1,
+                  ],
                 ),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 6,
-                    height: 6,
-                    decoration: BoxDecoration(
-                      color: color,
-                      shape: BoxShape.circle,
+
+                // Value with improved visibility
+                Flexible(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: DesignTokens.space2),
+                    child: Text(
+                      isString
+                          ? stat['value'].toString()
+                          : _formatNumber(stat['value'] as int),
+                      style: theme.textTheme.headlineMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: color,
+                        fontSize: isString ? 20 : 32,
+                        height: 1.0,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  const SizedBox(width: DesignTokens.space1),
-                  Text(
-                    'LIVE',
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: color,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 10,
-                    ),
+                ),
+
+                // Label with better contrast
+                Text(
+                  stat['label'] as String,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurface.withOpacity(0.9),
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
                   ),
-                ],
-              ),
-            ),
-          ],
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            );
+          },
         ),
       ),
     );

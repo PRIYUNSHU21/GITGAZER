@@ -110,116 +110,65 @@ class _HeroSectionState extends State<HeroSection>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final size = MediaQuery.of(context).size;
-    final isMobile = size.width <= 768;
-    final isSmallMobile = size.width <= 480;
 
     return Container(
-      height: widget.isDesktop ? 600 : (isMobile ? 450 : 500),
+      height: widget.isDesktop ? 600 : 500,
       width: double.infinity,
       decoration: BoxDecoration(
         gradient: DesignTokens.surfaceGradient(context),
       ),
       child: Stack(
         children: [
-          // Animated background elements (reduced for mobile)
-          if (widget.isDesktop) ..._buildBackgroundElements(context),
+          // Animated background elements
+          ..._buildBackgroundElements(context),
 
           // Main content
           Center(
-            child: SingleChildScrollView(
-              physics: const NeverScrollableScrollPhysics(),
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal:
-                      isSmallMobile ? DesignTokens.space4 : DesignTokens.space6,
-                  vertical: DesignTokens.space4,
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // Animated Logo
-                    _buildAnimatedLogo(context),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Animated Logo
+                _buildAnimatedLogo(context),
 
-                    SizedBox(
-                        height: widget.isDesktop ? 40 : (isMobile ? 20 : 30)),
+                SizedBox(height: widget.isDesktop ? 25 : 20),
 
-                    // Title with animation
-                    FadeTransition(
-                      opacity: _fadeInAnimation,
-                      child: SlideTransition(
-                        position: Tween<Offset>(
-                          begin: const Offset(0, 0.3),
-                          end: Offset.zero,
-                        ).animate(CurvedAnimation(
-                          parent: _logoController,
-                          curve:
-                              const Interval(0.4, 1.0, curve: Curves.easeOut),
-                        )),
-                        child: Text(
-                          'GITGAZER',
-                          style: TextStyle(
-                            fontSize: widget.isDesktop
-                                ? 48
-                                : (isSmallMobile ? 24 : 32),
-                            fontWeight: FontWeight.w700,
-                            color: theme.colorScheme.onSurface,
-                            letterSpacing: widget.isDesktop ? 2.0 : 1.5,
-                            height: 1.1,
+                // Title with animation
+                FadeTransition(
+                  opacity: _fadeInAnimation,
+                  child: SlideTransition(
+                    position: Tween<Offset>(
+                      begin: const Offset(0, 0.3),
+                      end: Offset.zero,
+                    ).animate(CurvedAnimation(
+                      parent: _logoController,
+                      curve: const Interval(0.4, 1.0, curve: Curves.easeOut),
+                    )),
+                    child: Text(
+                      'GITGAZER',
+                      style: TextStyle(
+                        fontSize: widget.isDesktop ? 56 : 40,
+                        fontWeight: FontWeight.w800,
+                        color: theme.colorScheme.onSurface,
+                        letterSpacing: 3.0,
+                        height: 1.0,
+                        shadows: [
+                          Shadow(
+                            color: theme.colorScheme.primary.withOpacity(0.3),
+                            offset: const Offset(0, 2),
+                            blurRadius: 4,
                           ),
-                          textAlign: TextAlign.center,
-                        ),
+                        ],
                       ),
+                      textAlign: TextAlign.center,
                     ),
-
-                    SizedBox(
-                        height: widget.isDesktop ? 20 : (isMobile ? 12 : 16)),
-
-                    // Subtitle with animation
-                    FadeTransition(
-                      opacity: _fadeInAnimation,
-                      child: SlideTransition(
-                        position: Tween<Offset>(
-                          begin: const Offset(0, 0.3),
-                          end: Offset.zero,
-                        ).animate(CurvedAnimation(
-                          parent: _logoController,
-                          curve:
-                              const Interval(0.6, 1.0, curve: Curves.easeOut),
-                        )),
-                        child: Container(
-                          constraints: BoxConstraints(
-                            maxWidth: widget.isDesktop
-                                ? 600
-                                : (size.width * (isSmallMobile ? 0.95 : 0.9)),
-                          ),
-                          child: Text(
-                            widget.isDesktop || !isMobile
-                                ? 'AI-Powered Repository Insights & Analytics\nUncover patterns, track performance, and optimize your codebase'
-                                : 'AI-Powered Repository Insights\nTrack performance and optimize your codebase',
-                            style: TextStyle(
-                              fontSize: widget.isDesktop
-                                  ? 18
-                                  : (isSmallMobile ? 14 : 16),
-                              color:
-                                  theme.colorScheme.onSurface.withOpacity(0.7),
-                              height: 1.5,
-                              fontWeight: FontWeight.w400,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    SizedBox(
-                        height: widget.isDesktop ? 40 : (isMobile ? 20 : 30)),
-
-                    // Feature badges with staggered animation
-                    _buildFeatureBadges(context),
-                  ],
+                  ),
                 ),
-              ),
+
+                SizedBox(height: widget.isDesktop ? 50 : 35),
+
+                // Feature badges with staggered animation
+                _buildFeatureBadges(context),
+              ],
             ),
           ),
         ],
@@ -229,9 +178,6 @@ class _HeroSectionState extends State<HeroSection>
 
   Widget _buildAnimatedLogo(BuildContext context) {
     final theme = Theme.of(context);
-    final size = MediaQuery.of(context).size;
-    final isMobile = size.width <= 768;
-    final isSmallMobile = size.width <= 480;
 
     return AnimatedBuilder(
       animation: Listenable.merge([
@@ -247,21 +193,21 @@ class _HeroSectionState extends State<HeroSection>
             child: Transform.scale(
               scale: _pulseAnimation.value,
               child: Container(
-                width: widget.isDesktop ? 120 : (isSmallMobile ? 80 : 100),
-                height: widget.isDesktop ? 120 : (isSmallMobile ? 80 : 100),
+                width: widget.isDesktop ? 140 : 120,
+                height: widget.isDesktop ? 140 : 120,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: DesignTokens.primaryGradient(context),
                   boxShadow: [
                     BoxShadow(
                       color: theme.colorScheme.primary.withOpacity(0.3),
-                      blurRadius: isMobile ? 20 : 30,
-                      spreadRadius: isMobile ? 3 : 5,
+                      blurRadius: 30,
+                      spreadRadius: 5,
                     ),
                     BoxShadow(
                       color: Colors.black.withOpacity(0.1),
-                      blurRadius: isMobile ? 15 : 20,
-                      offset: Offset(0, isMobile ? 5 : 10),
+                      blurRadius: 20,
+                      offset: const Offset(0, 10),
                     ),
                   ],
                 ),
@@ -269,7 +215,7 @@ class _HeroSectionState extends State<HeroSection>
                   angle: _logoRotationAnimation.value * 0.1,
                   child: Icon(
                     Icons.analytics_rounded,
-                    size: widget.isDesktop ? 60 : (isSmallMobile ? 40 : 50),
+                    size: widget.isDesktop ? 70 : 60,
                     color: Colors.white,
                   ),
                 ),
@@ -282,10 +228,6 @@ class _HeroSectionState extends State<HeroSection>
   }
 
   Widget _buildFeatureBadges(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    final isMobile = size.width <= 768;
-    final isSmallMobile = size.width <= 480;
-
     final features = [
       {'icon': Icons.psychology_outlined, 'text': 'AI Analysis'},
       {'icon': Icons.insert_chart_outlined, 'text': 'Interactive Charts'},
@@ -303,101 +245,30 @@ class _HeroSectionState extends State<HeroSection>
           parent: _logoController,
           curve: const Interval(0.8, 1.0, curve: Curves.easeOut),
         )),
-        child: Container(
-          constraints: BoxConstraints(
-            maxWidth: widget.isDesktop ? 700 : size.width * 0.95,
-          ),
-          child: isMobile
-              ? Column(
-                  children: [
-                    // First row for mobile
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [0, 1].map((index) {
-                        final feature = features[index];
-                        return Expanded(
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: isSmallMobile ? 2 : 4,
-                            ),
-                            child: TweenAnimationBuilder<double>(
-                              duration:
-                                  Duration(milliseconds: 800 + (index * 200)),
-                              tween: Tween<double>(begin: 0.0, end: 1.0),
-                              curve: Curves.elasticOut,
-                              builder: (context, value, child) {
-                                return Transform.scale(
-                                  scale: value,
-                                  child: _buildFeatureBadge(
-                                    context,
-                                    feature['icon'] as IconData,
-                                    feature['text'] as String,
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                    SizedBox(height: isSmallMobile ? 8 : 12),
-                    // Second row for mobile
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [2, 3].map((index) {
-                        final feature = features[index];
-                        return Expanded(
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: isSmallMobile ? 2 : 4,
-                            ),
-                            child: TweenAnimationBuilder<double>(
-                              duration:
-                                  Duration(milliseconds: 800 + (index * 200)),
-                              tween: Tween<double>(begin: 0.0, end: 1.0),
-                              curve: Curves.elasticOut,
-                              builder: (context, value, child) {
-                                return Transform.scale(
-                                  scale: value,
-                                  child: _buildFeatureBadge(
-                                    context,
-                                    feature['icon'] as IconData,
-                                    feature['text'] as String,
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ],
-                )
-              : Wrap(
-                  spacing: widget.isDesktop ? 20 : 12,
-                  runSpacing: widget.isDesktop ? 16 : 12,
-                  alignment: WrapAlignment.center,
-                  children: features.asMap().entries.map((entry) {
-                    final index = entry.key;
-                    final feature = entry.value;
+        child: Wrap(
+          spacing: widget.isDesktop ? 20 : 12,
+          runSpacing: widget.isDesktop ? 16 : 12,
+          alignment: WrapAlignment.center,
+          children: features.asMap().entries.map((entry) {
+            final index = entry.key;
+            final feature = entry.value;
 
-                    return TweenAnimationBuilder<double>(
-                      duration: Duration(milliseconds: 800 + (index * 200)),
-                      tween: Tween<double>(begin: 0.0, end: 1.0),
-                      curve: Curves.elasticOut,
-                      builder: (context, value, child) {
-                        return Transform.scale(
-                          scale: value,
-                          child: _buildFeatureBadge(
-                            context,
-                            feature['icon'] as IconData,
-                            feature['text'] as String,
-                          ),
-                        );
-                      },
-                    );
-                  }).toList(),
-                ),
+            return TweenAnimationBuilder<double>(
+              duration: Duration(milliseconds: 800 + (index * 200)),
+              tween: Tween<double>(begin: 0.0, end: 1.0),
+              curve: Curves.elasticOut,
+              builder: (context, value, child) {
+                return Transform.scale(
+                  scale: value,
+                  child: _buildFeatureBadge(
+                    context,
+                    feature['icon'] as IconData,
+                    feature['text'] as String,
+                  ),
+                );
+              },
+            );
+          }).toList(),
         ),
       ),
     );
@@ -405,19 +276,15 @@ class _HeroSectionState extends State<HeroSection>
 
   Widget _buildFeatureBadge(BuildContext context, IconData icon, String text) {
     final theme = Theme.of(context);
-    final size = MediaQuery.of(context).size;
-    final isMobile = size.width <= 768;
-    final isSmallMobile = size.width <= 480;
 
     return Container(
-      width: isMobile ? null : null, // Let it size naturally on mobile
       padding: EdgeInsets.symmetric(
-        horizontal: widget.isDesktop ? 20 : (isSmallMobile ? 8 : 12),
-        vertical: widget.isDesktop ? 12 : (isSmallMobile ? 8 : 10),
+        horizontal: widget.isDesktop ? 20 : 16,
+        vertical: widget.isDesktop ? 12 : 10,
       ),
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(isSmallMobile ? 20 : 30),
+        borderRadius: BorderRadius.circular(30),
         border: Border.all(
           color: theme.colorScheme.primary.withOpacity(0.2),
           width: 1,
@@ -430,65 +297,32 @@ class _HeroSectionState extends State<HeroSection>
           ),
         ],
       ),
-      child: isMobile
-          ? Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  padding: EdgeInsets.all(isSmallMobile ? 4 : 6),
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.primary.withOpacity(0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    icon,
-                    size: isSmallMobile ? 14 : 16,
-                    color: theme.colorScheme.primary,
-                  ),
-                ),
-                SizedBox(height: isSmallMobile ? 4 : 6),
-                Text(
-                  text,
-                  style: TextStyle(
-                    fontSize: isSmallMobile ? 10 : 12,
-                    fontWeight: FontWeight.w600,
-                    color: theme.colorScheme.onSurface,
-                  ),
-                  textAlign: TextAlign.center,
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 2,
-                ),
-              ],
-            )
-          : Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.primary.withOpacity(0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    icon,
-                    size: 16,
-                    color: theme.colorScheme.primary,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Flexible(
-                  child: Text(
-                    text,
-                    style: TextStyle(
-                      fontSize: widget.isDesktop ? 14 : 12,
-                      fontWeight: FontWeight.w600,
-                      color: theme.colorScheme.onSurface,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.primary.withOpacity(0.1),
+              shape: BoxShape.circle,
             ),
+            child: Icon(
+              icon,
+              size: 16,
+              color: theme.colorScheme.primary,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            text,
+            style: TextStyle(
+              fontSize: widget.isDesktop ? 14 : 12,
+              fontWeight: FontWeight.w600,
+              color: theme.colorScheme.onSurface,
+            ),
+          ),
+        ],
+      ),
     );
   }
 

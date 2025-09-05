@@ -20,11 +20,9 @@ class RepositorySelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isMobile = MediaQuery.of(context).size.width < 768;
 
     return Container(
-      padding:
-          EdgeInsets.all(isMobile ? DesignTokens.space4 : DesignTokens.space6),
+      padding: const EdgeInsets.all(DesignTokens.space6),
       decoration: DesignTokens.glassmorphism(
         context,
         blur: 10,
@@ -44,24 +42,20 @@ class RepositorySelector extends StatelessWidget {
                 child: Icon(
                   icon,
                   color: color,
-                  size: isMobile ? 16 : 18,
+                  size: 18,
                 ),
               ),
               const SizedBox(width: DesignTokens.space3),
-              Expanded(
-                child: Text(
-                  title,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: theme.colorScheme.onSurface,
-                    fontSize: isMobile ? 16 : null,
-                  ),
+              Text(
+                title,
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: theme.colorScheme.onSurface,
                 ),
               ),
             ],
           ),
-          SizedBox(
-              height: isMobile ? DesignTokens.space4 : DesignTokens.space6),
+          const SizedBox(height: DesignTokens.space6),
           _buildTextField(
             context: context,
             controller: ownerController,
@@ -90,7 +84,6 @@ class RepositorySelector extends StatelessWidget {
     required IconData icon,
   }) {
     final theme = Theme.of(context);
-    final isMobile = MediaQuery.of(context).size.width < 768;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -100,7 +93,6 @@ class RepositorySelector extends StatelessWidget {
           style: theme.textTheme.labelMedium?.copyWith(
             color: theme.colorScheme.onSurface.withOpacity(0.8),
             fontWeight: FontWeight.w500,
-            fontSize: isMobile ? 12 : null,
           ),
         ),
         const SizedBox(height: DesignTokens.space2),
@@ -110,7 +102,7 @@ class RepositorySelector extends StatelessWidget {
             hintText: hint,
             prefixIcon: Icon(
               icon,
-              size: isMobile ? 18 : 20,
+              size: 20,
               color: theme.colorScheme.onSurface.withOpacity(0.5),
             ),
             filled: true,
@@ -128,16 +120,15 @@ class RepositorySelector extends StatelessWidget {
             ),
             hintStyle: TextStyle(
               color: theme.colorScheme.onSurface.withOpacity(0.5),
-              fontSize: isMobile ? 12 : 14,
             ),
-            contentPadding: EdgeInsets.symmetric(
+            contentPadding: const EdgeInsets.symmetric(
               horizontal: DesignTokens.space4,
-              vertical: isMobile ? DesignTokens.space2 : DesignTokens.space3,
+              vertical: DesignTokens.space3,
             ),
           ),
           style: TextStyle(
             color: theme.colorScheme.onSurface,
-            fontSize: isMobile ? 12 : 14,
+            fontSize: 14,
           ),
         ),
       ],

@@ -6,6 +6,7 @@ import 'providers/analysis_provider.dart';
 import 'providers/theme_provider.dart';
 import 'providers/history_provider.dart';
 import 'screens/home_screen.dart';
+import 'screens/repository_compare_screen.dart';
 
 class GitHubAnalyzerApp extends StatelessWidget {
   const GitHubAnalyzerApp({super.key});
@@ -14,9 +15,9 @@ class GitHubAnalyzerApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => AnalysisProvider()),
         ChangeNotifierProvider(create: (_) => HistoryProvider()),
+        // ThemeProvider and BookmarkProvider are already provided in main.dart
       ],
       child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, child) {
@@ -35,6 +36,7 @@ class GitHubAnalyzerApp extends StatelessWidget {
             // Routes (for future expansion)
             routes: {
               '/home': (context) => const HomeScreen(),
+              '/compare': (context) => const RepositoryCompareScreen(),
               // Add more routes as needed
             },
           );

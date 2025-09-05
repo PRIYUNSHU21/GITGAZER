@@ -64,12 +64,10 @@ class StatsComparisonCard extends StatelessWidget {
     Color color,
   ) {
     final theme = Theme.of(context);
-    final isMobile = MediaQuery.of(context).size.width < 768;
     final winner = value1 > value2 ? 1 : (value2 > value1 ? 2 : 0);
 
     return Container(
-      padding:
-          EdgeInsets.all(isMobile ? DesignTokens.space4 : DesignTokens.space6),
+      padding: const EdgeInsets.all(DesignTokens.space6),
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
@@ -97,25 +95,22 @@ class StatsComparisonCard extends StatelessWidget {
                 child: Icon(
                   icon,
                   color: color,
-                  size: isMobile ? 16 : 18,
+                  size: 18,
                 ),
               ),
               const SizedBox(width: DesignTokens.space3),
-              Expanded(
-                child: Text(
-                  label,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: theme.colorScheme.onSurface,
-                    fontSize: isMobile ? 14 : null,
-                  ),
+              Text(
+                label,
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: theme.colorScheme.onSurface,
                 ),
               ),
+              const Spacer(),
               if (winner != 0)
                 Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal:
-                        isMobile ? DesignTokens.space2 : DesignTokens.space3,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: DesignTokens.space3,
                     vertical: DesignTokens.space1,
                   ),
                   decoration: BoxDecoration(
@@ -124,61 +119,39 @@ class StatsComparisonCard extends StatelessWidget {
                         BorderRadius.circular(DesignTokens.radiusFull),
                   ),
                   child: Text(
-                    isMobile ? 'Repo $winner' : 'Repository $winner leads',
+                    'Repository $winner leads',
                     style: theme.textTheme.labelSmall?.copyWith(
                       color: color,
                       fontWeight: FontWeight.w600,
-                      fontSize: isMobile ? 10 : null,
                     ),
                   ),
                 ),
             ],
           ),
-          SizedBox(
-              height: isMobile ? DesignTokens.space3 : DesignTokens.space4),
-          isMobile
-              ? Column(
-                  children: [
-                    _buildStatCard(
-                      context,
-                      analysis1.fullName,
-                      value1,
-                      theme.colorScheme.primary,
-                      isWinner: winner == 1,
-                    ),
-                    const SizedBox(height: DesignTokens.space3),
-                    _buildStatCard(
-                      context,
-                      analysis2.fullName,
-                      value2,
-                      theme.colorScheme.secondary,
-                      isWinner: winner == 2,
-                    ),
-                  ],
-                )
-              : Row(
-                  children: [
-                    Expanded(
-                      child: _buildStatCard(
-                        context,
-                        analysis1.fullName,
-                        value1,
-                        theme.colorScheme.primary,
-                        isWinner: winner == 1,
-                      ),
-                    ),
-                    const SizedBox(width: DesignTokens.space4),
-                    Expanded(
-                      child: _buildStatCard(
-                        context,
-                        analysis2.fullName,
-                        value2,
-                        theme.colorScheme.secondary,
-                        isWinner: winner == 2,
-                      ),
-                    ),
-                  ],
+          const SizedBox(height: DesignTokens.space4),
+          Row(
+            children: [
+              Expanded(
+                child: _buildStatCard(
+                  context,
+                  analysis1.fullName,
+                  value1,
+                  theme.colorScheme.primary,
+                  isWinner: winner == 1,
                 ),
+              ),
+              const SizedBox(width: DesignTokens.space4),
+              Expanded(
+                child: _buildStatCard(
+                  context,
+                  analysis2.fullName,
+                  value2,
+                  theme.colorScheme.secondary,
+                  isWinner: winner == 2,
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );
@@ -188,18 +161,15 @@ class StatsComparisonCard extends StatelessWidget {
       BuildContext context, String repoName, int value, Color color,
       {bool isWinner = false}) {
     final theme = Theme.of(context);
-    final isMobile = MediaQuery.of(context).size.width < 768;
 
     return Container(
-      padding:
-          EdgeInsets.all(isMobile ? DesignTokens.space3 : DesignTokens.space4),
+      padding: const EdgeInsets.all(DesignTokens.space4),
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
         border: isWinner
-            ? Border.all(color: color, width: isMobile ? 2 : 3)
-            : Border.all(
-                color: color.withOpacity(0.6), width: isMobile ? 1 : 2),
+            ? Border.all(color: color, width: 3)
+            : Border.all(color: color.withOpacity(0.6), width: 2),
         boxShadow: isWinner
             ? [
                 BoxShadow(
@@ -217,14 +187,12 @@ class StatsComparisonCard extends StatelessWidget {
             style: theme.textTheme.labelMedium?.copyWith(
               color: theme.colorScheme.onSurface,
               fontWeight: FontWeight.w600,
-              fontSize: isMobile ? 10 : null,
             ),
             textAlign: TextAlign.center,
-            maxLines: isMobile ? 2 : 1,
+            maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
-          SizedBox(
-              height: isMobile ? DesignTokens.space1 : DesignTokens.space2),
+          const SizedBox(height: DesignTokens.space2),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [

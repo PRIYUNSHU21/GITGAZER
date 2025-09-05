@@ -1,7 +1,7 @@
 {
-    "name": "GITGAZER - GitHub Repository Analyzer",
-    "short_name": "GITGAZER",
-    "description": "Analyze GitHub repositories with AI-powered insights using GITGAZER",
+    "name": "GitHub Repository Analyzer",
+    "short_name": "GitAnalyzer",
+    "description": "Analyze GitHub repositories with AI-powered insights",
     "start_url": "/",
     "display": "standalone",
     "background_color": "#1C1B1F",

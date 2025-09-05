@@ -13,51 +13,49 @@ class EnhancedAiInsights extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'AI-Generated Insights',
-            style: theme.textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: theme.colorScheme.onSurface,
-            ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'AI-Generated Insights',
+          style: theme.textTheme.headlineSmall?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: theme.colorScheme.onSurface,
           ),
-          const SizedBox(height: 16),
+        ),
+        const SizedBox(height: 16),
 
-          // Repository Summary
-          _buildInsightCard(
-            context,
-            title: '📄 Repository Summary',
-            content: aiInsights.repositorySummary.content,
-            generatedAt: aiInsights.repositorySummary.generatedAt,
-            icon: Icons.description_outlined,
-          ),
+        // Repository Summary
+        _buildInsightCard(
+          context,
+          title: '📄 Repository Summary',
+          content: aiInsights.repositorySummary.content,
+          generatedAt: aiInsights.repositorySummary.generatedAt,
+          icon: Icons.description_outlined,
+        ),
 
-          const SizedBox(height: 16),
+        const SizedBox(height: 16),
 
-          // Language Analysis
-          _buildInsightCard(
-            context,
-            title: '🔧 Technology Stack Analysis',
-            content: aiInsights.languageAnalysis.content,
-            generatedAt: aiInsights.languageAnalysis.generatedAt,
-            icon: Icons.code_outlined,
-          ),
+        // Language Analysis
+        _buildInsightCard(
+          context,
+          title: '🔧 Technology Stack Analysis',
+          content: aiInsights.languageAnalysis.content,
+          generatedAt: aiInsights.languageAnalysis.generatedAt,
+          icon: Icons.code_outlined,
+        ),
 
-          const SizedBox(height: 16),
+        const SizedBox(height: 16),
 
-          // Contribution Patterns
-          _buildInsightCard(
-            context,
-            title: '👥 Contribution Patterns',
-            content: aiInsights.contributionPatterns.content,
-            generatedAt: aiInsights.contributionPatterns.generatedAt,
-            icon: Icons.people_outline,
-          ),
-        ],
-      ),
+        // Contribution Patterns
+        _buildInsightCard(
+          context,
+          title: '👥 Contribution Patterns',
+          content: aiInsights.contributionPatterns.content,
+          generatedAt: aiInsights.contributionPatterns.generatedAt,
+          icon: Icons.people_outline,
+        ),
+      ],
     );
   }
 
@@ -115,7 +113,7 @@ class EnhancedAiInsights extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
-            SelectableText(
+            Text(
               content,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurface.withOpacity(0.8),

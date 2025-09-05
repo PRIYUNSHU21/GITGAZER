@@ -18,38 +18,41 @@ class BookmarkedRepositoryAdapter extends TypeAdapter<BookmarkedRepository> {
     };
     return BookmarkedRepository(
       owner: fields[0] as String,
-      name: fields[1] as String,
-      description: fields[2] as String?,
-      language: fields[3] as String?,
+      repo: fields[1] as String,
+      name: fields[2] as String,
+      description: fields[3] as String,
       stars: fields[4] as int,
       forks: fields[5] as int,
-      bookmarkedAt: fields[6] as DateTime,
-      tags: (fields[7] as List).cast<String>(),
-      avatarUrl: fields[8] as String?,
+      language: fields[6] as String,
+      bookmarkedAt: fields[7] as DateTime,
+      tags: (fields[8] as List).cast<String>(),
+      avatarUrl: fields[9] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, BookmarkedRepository obj) {
     writer
-      ..writeByte(9)
+      ..writeByte(10)
       ..writeByte(0)
       ..write(obj.owner)
       ..writeByte(1)
-      ..write(obj.name)
+      ..write(obj.repo)
       ..writeByte(2)
-      ..write(obj.description)
+      ..write(obj.name)
       ..writeByte(3)
-      ..write(obj.language)
+      ..write(obj.description)
       ..writeByte(4)
       ..write(obj.stars)
       ..writeByte(5)
       ..write(obj.forks)
       ..writeByte(6)
-      ..write(obj.bookmarkedAt)
+      ..write(obj.language)
       ..writeByte(7)
-      ..write(obj.tags)
+      ..write(obj.bookmarkedAt)
       ..writeByte(8)
+      ..write(obj.tags)
+      ..writeByte(9)
       ..write(obj.avatarUrl);
   }
 

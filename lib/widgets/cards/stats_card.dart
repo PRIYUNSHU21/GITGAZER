@@ -57,42 +57,43 @@ class StatsCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(DesignTokens.radiusLg),
           onTap: () {}, // Add subtle interaction
           child: Padding(
-            padding: const EdgeInsets.all(DesignTokens.space2), // Tiny padding
+            padding: const EdgeInsets.all(DesignTokens.space6),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
-                  padding: const EdgeInsets.all(
-                      DesignTokens.space1), // Minimal padding
+                  padding: const EdgeInsets.all(DesignTokens.space3),
                   decoration: BoxDecoration(
                     color: cardColor.withOpacity(0.15),
-                    borderRadius: BorderRadius.circular(DesignTokens.radiusSm),
+                    borderRadius:
+                        BorderRadius.circular(DesignTokens.radiusFull),
                   ),
                   child: Icon(
                     icon,
-                    size: 16, // Much smaller icon
+                    size: 32,
                     color: cardColor,
                   ),
                 ),
-                const SizedBox(height: DesignTokens.space1), // Tiny spacing
+                const SizedBox(height: DesignTokens.space4),
                 Text(
                   _formatValue(value),
                   style: theme.textTheme.headlineMedium?.copyWith(
                     fontWeight: FontWeight.w800,
                     color: cardColor,
-                    fontSize: 18, // Much smaller font
+                    fontSize: 32,
                   ),
                   textAlign: TextAlign.center,
                 ),
+                const SizedBox(height: DesignTokens.space2),
                 Text(
                   label,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: theme.colorScheme.onSurface.withOpacity(0.8),
                     fontWeight: FontWeight.w600,
-                    fontSize: 10, // Tiny label font
+                    fontSize: 14,
                   ),
                   textAlign: TextAlign.center,
-                  maxLines: 1,
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
               ],

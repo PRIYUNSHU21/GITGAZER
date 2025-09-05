@@ -113,11 +113,114 @@ class AppTheme {
     );
   }
 
+  // Material 3 Color Scheme - Light Theme
+  static const ColorScheme lightColorScheme = ColorScheme(
+    brightness: Brightness.light,
+    primary: Color(0xFF006A77), // Dark Teal
+    onPrimary: Color(0xFFFFFFFF), // White
+    primaryContainer: Color(0xFFB8E6FF), // Light Blue
+    onPrimaryContainer: Color(0xFF001E2A), // Very Dark Blue
+
+    secondary: Color(0xFF4A6572), // Medium Gray-Blue
+    onSecondary: Color(0xFFFFFFFF), // White
+    secondaryContainer: Color(0xFFCDE7F0), // Light Blue-Gray
+    onSecondaryContainer: Color(0xFF051F26), // Dark Blue
+
+    tertiary: Color(0xFF52634F), // Dark Green
+    onTertiary: Color(0xFFFFFFFF), // White
+    tertiaryContainer: Color(0xFFD4E8CE), // Light Green
+    onTertiaryContainer: Color(0xFF0F1F0A), // Very Dark Green
+
+    error: Color(0xFFBA1A1A), // Red
+    onError: Color(0xFFFFFFFF), // White
+    errorContainer: Color(0xFFFFDAD6), // Light Red
+    onErrorContainer: Color(0xFF410002), // Dark Red
+
+    outline: Color(0xFF70787D), // Gray Outline
+    outlineVariant: Color(0xFFC0C8CD), // Light Gray Outline
+
+    surface: Color(0xFFFCFCFF), // Almost White
+    onSurface: Color(0xFF191C1D), // Dark Text
+    surfaceContainerHighest: Color(0xFFE1E3E3), // Light Gray
+    onSurfaceVariant: Color(0xFF40484C), // Medium Dark Text
+
+    inverseSurface: Color(0xFF2E3132), // Dark Surface
+    onInverseSurface: Color(0xFFEFF1F1), // Light Text
+    inversePrimary: Color(0xFF4FC3F7), // Light Blue
+
+    shadow: Color(0xFF000000), // Black Shadow
+    scrim: Color(0xFF000000), // Black Scrim
+    surfaceTint: Color(0xFF006A77), // Teal Surface Tint
+  );
+
   static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,
-      colorScheme: darkColorScheme, // Using dark for now
-      textTheme: GoogleFonts.robotoTextTheme(),
+      colorScheme: lightColorScheme,
+      textTheme: GoogleFonts.robotoTextTheme().apply(
+        bodyColor: lightColorScheme.onSurface,
+        displayColor: lightColorScheme.onSurface,
+      ),
+
+      // App Bar Theme
+      appBarTheme: AppBarTheme(
+        backgroundColor: lightColorScheme.surface,
+        foregroundColor: lightColorScheme.onSurface,
+        elevation: 0,
+        centerTitle: true,
+        titleTextStyle: GoogleFonts.roboto(
+          fontSize: 22,
+          fontWeight: FontWeight.w500,
+          color: lightColorScheme.onSurface,
+        ),
+      ),
+
+      // Card Theme
+      cardTheme: CardThemeData(
+        elevation: 2,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+
+      // Elevated Button Theme
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: lightColorScheme.primary,
+          foregroundColor: lightColorScheme.onPrimary,
+          elevation: 2,
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+          textStyle: GoogleFonts.roboto(
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ),
+
+      // Input Decoration Theme
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: lightColorScheme.surfaceContainerHighest,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: lightColorScheme.outline),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: lightColorScheme.outline),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: lightColorScheme.primary, width: 2),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: lightColorScheme.error),
+        ),
+      ),
     );
   }
 }
