@@ -4,7 +4,7 @@ import '../../models/repository_analysis.dart';
 import 'stats_comparison_card.dart';
 import 'language_comparison_chart.dart';
 import 'commit_activity_comparison.dart';
-import '../ai/enhanced_ai_insights.dart';
+import '../cards/modern_enhanced_ai_insight_card.dart';
 
 class ComparisonResults extends StatefulWidget {
   final RepositoryAnalysis analysis1;
@@ -248,9 +248,16 @@ class _ComparisonResultsState extends State<ComparisonResults>
   }
 
   Widget _buildTabContent() {
+    final size = MediaQuery.of(context).size;
+    final isMobile = size.width < 768;
+
     return Container(
-      height: 600,
-      padding: const EdgeInsets.all(DesignTokens.space6),
+      height: isMobile
+          ? size.height * 0.75
+          : 800, // Increased height for modern AI cards
+      padding: EdgeInsets.all(
+        isMobile ? DesignTokens.space3 : DesignTokens.space6,
+      ),
       child: TabBarView(
         controller: _tabController,
         children: [
@@ -273,79 +280,65 @@ class _ComparisonResultsState extends State<ComparisonResults>
   }
 
   Widget _buildAIInsightsTab() {
+    final size = MediaQuery.of(context).size;
+    final isMobile = size.width < 768;
+
     return SingleChildScrollView(
       child: Column(
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Column(
-                  children: [
-                    _buildAIInsightHeader('Repository 1', widget.analysis1),
-                    const SizedBox(height: DesignTokens.space4),
-                    Container(
-                      height: 400,
-                      decoration: BoxDecoration(
-                        borderRadius:
-                            BorderRadius.circular(DesignTokens.radiusMd),
-                        border: Border.all(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .outline
-                              .withOpacity(0.2),
-                        ),
-                      ),
-                      child: ClipRRect(
-                        borderRadius:
-                            BorderRadius.circular(DesignTokens.radiusMd),
-                        child: SingleChildScrollView(
-                          padding: const EdgeInsets.all(DesignTokens.space4),
-                          child: EnhancedAiInsights(
-                            aiInsights: widget.analysis1.enhancedAiInsight!,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+          if (isMobile)
+            // Mobile: Stack vertically
+            Column(
+              children: [
+                _buildAIInsightSection('Repository 1', widget.analysis1),
+                const SizedBox(height: DesignTokens.space6),
+                _buildAIInsightSection('Repository 2', widget.analysis2),
+              ],
+            )
+          else
+            // Desktop: Side by side
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child:
+                      _buildAIInsightSection('Repository 1', widget.analysis1),
                 ),
-              ),
-              const SizedBox(width: DesignTokens.space4),
-              Expanded(
-                child: Column(
-                  children: [
-                    _buildAIInsightHeader('Repository 2', widget.analysis2),
-                    const SizedBox(height: DesignTokens.space4),
-                    Container(
-                      height: 400,
-                      decoration: BoxDecoration(
-                        borderRadius:
-                            BorderRadius.circular(DesignTokens.radiusMd),
-                        border: Border.all(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .outline
-                              .withOpacity(0.2),
-                        ),
-                      ),
-                      child: ClipRRect(
-                        borderRadius:
-                            BorderRadius.circular(DesignTokens.radiusMd),
-                        child: SingleChildScrollView(
-                          padding: const EdgeInsets.all(DesignTokens.space4),
-                          child: EnhancedAiInsights(
-                            aiInsights: widget.analysis2.enhancedAiInsight!,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+                const SizedBox(width: DesignTokens.space4),
+                Expanded(
+                  child:
+                      _buildAIInsightSection('Repository 2', widget.analysis2),
                 ),
-              ),
-            ],
-          ),
+              ],
+            ),
         ],
       ),
+    );
+  }
+
+  Widget _buildAIInsightSection(String title, RepositoryAnalysis analysis) {
+    return Column(
+      children: [
+        _buildAIInsightHeader(title, analysis),
+        const SizedBox(height: DesignTokens.space4),
+        Container(
+          height: MediaQuery.of(context).size.width < 768
+              ? 500
+              : 600, // Increased height for modern AI card
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
+            border: Border.all(
+              color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+            ),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
+            child: ModernEnhancedAiInsightCard(
+              enhancedInsight: analysis.enhancedAiInsight!,
+            ),
+          ),
+        ),
+      ],
     );
   }
 

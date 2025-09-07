@@ -12,11 +12,16 @@
 
 A comprehensive Flutter-based Progressive Web App for analyzing GitHub repositories with AI-powered insights. This project demonstrates that Flutter can achieve the same PWA capabilities as traditional web frameworks.
 
+### UPDATE 1.2.1 : 07/09/2025
+ 1. Fixed mobile visibility issue
+ 2. THREE BAR MENU IN DASHBOARD
+ 3. Updated the ai analysis
+ 4. Bug fixes
 ### UPDATE 1.2.0 : 05/09/2025
- *1. Light & Dark Mode *
- *2. BUTTON PLACEMENTS: Compare + Bookmark + Theme under the 'REPOSITORY ANALYSE' BUTTON*
- *3. Visual Enhancements and Bug Fixes*
- *4. Upgraded Bookmark*
+ 1. Light & Dark Mode 
+ 2. BUTTON PLACEMENTS: Compare + Bookmark + Theme under the 'REPOSITORY ANALYSE' BUTTON
+ 3. Visual Enhancements and Bug Fixes
+ 4. Upgraded Bookmark
 
 ## 📱 Screenshots & Demo
 

@@ -51,7 +51,6 @@ coverage/
 .env.local
 
 # Generated files
-lib/generated_plugin_registrant.dart
 
 # Hive
 *.hive

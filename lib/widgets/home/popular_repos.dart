@@ -51,28 +51,9 @@ class PopularReposSection extends StatelessWidget {
             ),
             child: Row(
               children: [
-                Container(
-                  padding: const EdgeInsets.all(DesignTokens.space2),
-                  decoration: BoxDecoration(
-                    gradient: DesignTokens.primaryGradient(context),
-                    borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
-                    boxShadow: [
-                      BoxShadow(
-                        color: theme.colorScheme.primary.withOpacity(0.3),
-                        blurRadius: 6,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: const Icon(
-                    Icons.star_rounded,
-                    color: Colors.white,
-                    size: 20,
-                  ),
-                ),
                 const SizedBox(width: DesignTokens.space3),
                 Text(
-                  '🌟 Popular Repositories',
+                  'Popular Repositories',
                   style: DesignTokens.headingMd(context)?.copyWith(
                     fontWeight: FontWeight.w700,
                     letterSpacing: -0.3,

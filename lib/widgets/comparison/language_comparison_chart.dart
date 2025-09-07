@@ -51,10 +51,35 @@ class LanguageComparisonChart extends StatelessWidget {
   ) {
     return Container(
       padding: const EdgeInsets.all(DesignTokens.space6),
-      decoration: DesignTokens.glassmorphism(
-        context,
-        blur: 10,
-        opacity: 0.05,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(DesignTokens.radiusLg),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Theme.of(context).colorScheme.surface.withOpacity(0.8),
+            Theme.of(context)
+                .colorScheme
+                .surfaceContainerHighest
+                .withOpacity(0.4),
+          ],
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
+          ),
+          BoxShadow(
+            color: Theme.of(context).shadowColor.withOpacity(0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+          width: 1,
+        ),
       ),
       child: Column(
         children: [
@@ -89,29 +114,59 @@ class LanguageComparisonChart extends StatelessWidget {
   Widget _buildSectionHeader(BuildContext context, String title) {
     final theme = Theme.of(context);
 
-    return Row(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(DesignTokens.space2),
-          decoration: BoxDecoration(
-            color: theme.colorScheme.primary.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(DesignTokens.radiusSm),
-          ),
-          child: Icon(
-            Icons.code_outlined,
-            color: theme.colorScheme.primary,
-            size: 18,
-          ),
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: DesignTokens.space4,
+        vertical: DesignTokens.space3,
+      ),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            theme.colorScheme.primary.withOpacity(0.1),
+            theme.colorScheme.secondary.withOpacity(0.05),
+          ],
         ),
-        const SizedBox(width: DesignTokens.space3),
-        Text(
-          title,
-          style: theme.textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w600,
-            color: theme.colorScheme.onSurface,
-          ),
+        borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
+        border: Border.all(
+          color: theme.colorScheme.primary.withOpacity(0.2),
+          width: 1,
         ),
-      ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(DesignTokens.space2),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.primary.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(DesignTokens.radiusSm),
+              boxShadow: [
+                BoxShadow(
+                  color: theme.colorScheme.primary.withOpacity(0.3),
+                  blurRadius: 6,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Icon(
+              Icons.code_outlined,
+              color: theme.colorScheme.primary,
+              size: 20,
+            ),
+          ),
+          const SizedBox(width: DesignTokens.space3),
+          Text(
+            title,
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w700,
+              color: theme.colorScheme.onSurface,
+              letterSpacing: 0.5,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -158,6 +213,26 @@ class LanguageComparisonChart extends StatelessWidget {
         color: theme.colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
         border: Border.all(color: primaryColor.withOpacity(0.4), width: 2),
+        boxShadow: [
+          BoxShadow(
+            color: primaryColor.withOpacity(0.2),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+          BoxShadow(
+            color: theme.shadowColor.withOpacity(0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            theme.colorScheme.surfaceContainerHigh,
+            theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
+          ],
+        ),
       ),
       child: Column(
         children: [
@@ -168,6 +243,12 @@ class LanguageComparisonChart extends StatelessWidget {
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(DesignTokens.radiusMd),
                 topRight: Radius.circular(DesignTokens.radiusMd),
+              ),
+              border: Border(
+                bottom: BorderSide(
+                  color: primaryColor.withOpacity(0.2),
+                  width: 1,
+                ),
               ),
             ),
             child: Text(
@@ -182,12 +263,18 @@ class LanguageComparisonChart extends StatelessWidget {
             ),
           ),
           SizedBox(
-            height: 200,
+            height: MediaQuery.of(context).size.width < 768
+                ? 120
+                : 200, // Even smaller mobile size
             child: PieChart(
               PieChartData(
-                sections: _createPieSections(languages, primaryColor),
-                centerSpaceRadius: 50,
-                sectionsSpace: 8,
+                sections: _createPieSections(context, languages, primaryColor),
+                centerSpaceRadius: MediaQuery.of(context).size.width < 768
+                    ? 25
+                    : 50, // Smaller center space on mobile
+                sectionsSpace: MediaQuery.of(context).size.width < 768
+                    ? 4
+                    : 8, // Tighter spacing on mobile
                 startDegreeOffset: -90,
                 pieTouchData: PieTouchData(
                   enabled: false, // Disable touch to prevent interference
@@ -202,6 +289,7 @@ class LanguageComparisonChart extends StatelessWidget {
   }
 
   List<PieChartSectionData> _createPieSections(
+    BuildContext context,
     List<MapEntry<String, double>> languages,
     Color baseColor,
   ) {
@@ -216,34 +304,65 @@ class LanguageComparisonChart extends StatelessWidget {
         title: lang.value > 8.0
             ? '${lang.value.toStringAsFixed(0)}%'
             : '', // Only show labels for sections > 8%, no decimals
-        radius: 50,
+        radius: MediaQuery.of(context).size.width < 768
+            ? 30
+            : 50, // Smaller radius on mobile
         color: colors[index],
         titleStyle: TextStyle(
-          fontSize: 10,
+          fontSize: MediaQuery.of(context).size.width < 768
+              ? 9
+              : 12, // Slightly larger font for better readability
           fontWeight: FontWeight.bold,
           color: _getContrastColor(colors[index]),
           shadows: [
             Shadow(
               offset: const Offset(1, 1),
-              blurRadius: 3,
-              color: Colors.black.withOpacity(0.5),
+              blurRadius: 4,
+              color: Colors.black.withOpacity(0.7),
             ),
           ],
         ),
-        titlePositionPercentageOffset: 0.8, // Move labels even closer to center
+        titlePositionPercentageOffset: 0.75, // Better label positioning
+        borderSide: BorderSide(
+          color: Colors.white.withOpacity(0.3),
+          width: 1.5,
+        ),
       );
     }).toList();
   }
 
   List<Color> _generateColors(Color baseColor, int count) {
-    final colors = <Color>[];
-    final hsl = HSLColor.fromColor(baseColor);
+    // Predefined vibrant color palette for better variety
+    final vibrantColors = [
+      Colors.blue.shade400,
+      Colors.green.shade400,
+      Colors.orange.shade400,
+      Colors.purple.shade400,
+      Colors.red.shade400,
+      Colors.teal.shade400,
+      Colors.pink.shade400,
+      Colors.indigo.shade400,
+      Colors.amber.shade400,
+      Colors.cyan.shade400,
+      Colors.lime.shade400,
+      Colors.deepOrange.shade400,
+    ];
 
-    for (int i = 0; i < count; i++) {
-      final saturation = (hsl.saturation - (i * 0.1)).clamp(0.3, 1.0);
-      final lightness = (hsl.lightness + (i * 0.05)).clamp(0.3, 0.8);
-      colors.add(
-          hsl.withSaturation(saturation).withLightness(lightness).toColor());
+    final colors = <Color>[];
+
+    // If we have enough predefined colors, use them
+    if (count <= vibrantColors.length) {
+      colors.addAll(vibrantColors.take(count));
+    } else {
+      // For more colors, generate variations
+      final hsl = HSLColor.fromColor(baseColor);
+      for (int i = 0; i < count; i++) {
+        final hue = (hsl.hue + (i * 360 / count)) % 360;
+        final saturation = 0.8; // High saturation for vibrancy
+        final lightness = 0.6; // Medium lightness for good contrast
+        colors
+            .add(HSLColor.fromAHSL(1.0, hue, saturation, lightness).toColor());
+      }
     }
 
     return colors;
@@ -261,10 +380,35 @@ class LanguageComparisonChart extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.all(DesignTokens.space6),
-      decoration: DesignTokens.glassmorphism(
-        context,
-        blur: 10,
-        opacity: 0.05,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(DesignTokens.radiusLg),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Theme.of(context).colorScheme.surface.withOpacity(0.8),
+            Theme.of(context)
+                .colorScheme
+                .surfaceContainerHighest
+                .withOpacity(0.4),
+          ],
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
+          ),
+          BoxShadow(
+            color: Theme.of(context).shadowColor.withOpacity(0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+          width: 1,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -304,15 +448,31 @@ class LanguageComparisonChart extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: DesignTokens.space3),
       padding: const EdgeInsets.all(DesignTokens.space5),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            theme.colorScheme.surface,
+            theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
+          ],
+        ),
         borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
         border: Border.all(
           color: theme.colorScheme.outline.withOpacity(0.3),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
+            color: winner == 1
+                ? theme.colorScheme.primary.withOpacity(0.1)
+                : winner == 2
+                    ? theme.colorScheme.secondary.withOpacity(0.1)
+                    : Colors.black.withOpacity(0.05),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+          BoxShadow(
+            color: theme.shadowColor.withOpacity(0.1),
+            blurRadius: 6,
             offset: const Offset(0, 2),
           ),
         ],
@@ -434,13 +594,20 @@ class LanguageComparisonChart extends StatelessWidget {
         ),
         const SizedBox(height: DesignTokens.space2),
         Container(
-          height: 10,
+          height: 12, // Slightly taller for better visibility
           decoration: BoxDecoration(
             color: theme.colorScheme.surfaceContainerHigh,
             borderRadius: BorderRadius.circular(DesignTokens.radiusFull),
             border: Border.all(
               color: color.withOpacity(0.3),
             ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 4,
+                offset: const Offset(0, 1),
+              ),
+            ],
           ),
           child: FractionallySizedBox(
             alignment: Alignment.centerLeft,
@@ -448,18 +615,26 @@ class LanguageComparisonChart extends StatelessWidget {
             child: Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [color.withOpacity(0.8), color],
+                  colors: [
+                    color.withOpacity(0.9),
+                    color,
+                    color.withOpacity(0.8)
+                  ],
                   begin: Alignment.centerLeft,
                   end: Alignment.centerRight,
                 ),
                 borderRadius: BorderRadius.circular(DesignTokens.radiusFull),
                 boxShadow: [
                   BoxShadow(
-                    color: color.withOpacity(0.3),
-                    blurRadius: 4,
-                    offset: const Offset(0, 1),
+                    color: color.withOpacity(0.4),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
                   ),
                 ],
+                border: Border.all(
+                  color: Colors.white.withOpacity(0.3),
+                  width: 1,
+                ),
               ),
             ),
           ),

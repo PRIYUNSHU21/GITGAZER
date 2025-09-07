@@ -168,12 +168,14 @@ class StatsComparisonCard extends StatelessWidget {
         color: theme.colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
         border: isWinner
-            ? Border.all(color: color, width: 3)
+            ? Border.all(
+                color: Colors.green, width: 3) // Green outline for winner
             : Border.all(color: color.withOpacity(0.6), width: 2),
         boxShadow: isWinner
             ? [
                 BoxShadow(
-                  color: color.withOpacity(0.3),
+                  color:
+                      Colors.green.withOpacity(0.3), // Green shadow for winner
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -203,14 +205,7 @@ class StatsComparisonCard extends StatelessWidget {
                   color: theme.colorScheme.onSurface,
                 ),
               ),
-              if (isWinner) ...[
-                const SizedBox(width: DesignTokens.space2),
-                Icon(
-                  Icons.emoji_events,
-                  color: color,
-                  size: 20,
-                ),
-              ],
+              // Removed cup icon for winner - now using green outline instead
             ],
           ),
         ],

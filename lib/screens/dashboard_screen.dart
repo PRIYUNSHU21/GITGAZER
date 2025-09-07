@@ -177,7 +177,7 @@ class _DashboardScreenState extends State<DashboardScreen>
         slivers: [
           // Modern App Bar with Gradient
           SliverAppBar(
-            expandedHeight: isDesktop ? 210 : 170,
+            expandedHeight: isDesktop ? 210 : 220,
             floating: false,
             pinned: true,
             stretch: true,
@@ -187,7 +187,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                 child: SafeArea(
                   child: Padding(
                     padding: EdgeInsets.all(
-                      isDesktop ? DesignTokens.space6 : DesignTokens.space4,
+                      isDesktop ? DesignTokens.space6 : DesignTokens.space3,
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -293,13 +293,17 @@ class _DashboardScreenState extends State<DashboardScreen>
                                         ),
                                         const SizedBox(
                                             width: DesignTokens.space2),
-                                        Text(
-                                          widget.owner,
-                                          style: theme.textTheme.titleLarge
-                                              ?.copyWith(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.w700,
-                                            fontSize: 14,
+                                        Flexible(
+                                          child: Text(
+                                            widget.owner,
+                                            style: theme.textTheme.titleLarge
+                                                ?.copyWith(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w700,
+                                              fontSize: 14,
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 1,
                                           ),
                                         ),
                                         Container(
@@ -331,19 +335,23 @@ class _DashboardScreenState extends State<DashboardScreen>
                                         ),
                                         const SizedBox(
                                             width: DesignTokens.space2),
-                                        Text(
-                                          widget.repo,
-                                          style: theme.textTheme.titleLarge
-                                              ?.copyWith(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.w800,
-                                            fontSize: 16,
+                                        Flexible(
+                                          child: Text(
+                                            widget.repo,
+                                            style: theme.textTheme.titleLarge
+                                                ?.copyWith(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w800,
+                                              fontSize: 16,
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 1,
                                           ),
                                         ),
                                       ],
                                     ),
                                   ),
-                                  const SizedBox(height: DesignTokens.space2),
+                                  const SizedBox(height: DesignTokens.space3),
                                   Row(
                                     children: [
                                       Container(
@@ -426,16 +434,31 @@ class _DashboardScreenState extends State<DashboardScreen>
                         ),
                         const SizedBox(height: DesignTokens.space4),
                         if (!_isLoading && _analysis != null) ...[
-                          Row(
+                          // Quick Stats Section
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              _buildQuickStat(
-                                  'Stars', _analysis!.stats.stars.toString()),
-                              const SizedBox(width: DesignTokens.space4),
-                              _buildQuickStat(
-                                  'Forks', _analysis!.stats.forks.toString()),
-                              const SizedBox(width: DesignTokens.space4),
-                              _buildQuickStat('Issues',
-                                  _analysis!.stats.openIssues.toString()),
+                              SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: Row(
+                                  children: [
+                                    _buildQuickStat('Stars',
+                                        _analysis!.stats.stars.toString()),
+                                    SizedBox(
+                                        width: isDesktop
+                                            ? DesignTokens.space4
+                                            : DesignTokens.space2),
+                                    _buildQuickStat('Forks',
+                                        _analysis!.stats.forks.toString()),
+                                    SizedBox(
+                                        width: isDesktop
+                                            ? DesignTokens.space4
+                                            : DesignTokens.space2),
+                                    _buildQuickStat('Issues',
+                                        _analysis!.stats.openIssues.toString()),
+                                  ],
+                                ),
+                              ),
                             ],
                           ),
                         ],
@@ -447,68 +470,282 @@ class _DashboardScreenState extends State<DashboardScreen>
             ),
             actions: [
               if (_analysis != null) ...[
-                // Bookmark Button
-                Consumer<BookmarkProvider>(
-                  builder: (context, bookmarkProvider, child) {
-                    final isBookmarked = bookmarkProvider.isBookmarked(
-                      _analysis!.owner,
-                      _analysis!.repo,
-                    );
-                    return IconButton(
-                      icon: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: DesignTokens.glassmorphism(context),
-                        child: Icon(
-                          isBookmarked ? Icons.bookmark : Icons.bookmark_border,
-                          color: Colors.white,
+                // Enhanced Menu Button with all actions
+                Container(
+                  margin: const EdgeInsets.symmetric(
+                      horizontal: DesignTokens.space2),
+                  child: PopupMenuButton<String>(
+                    icon: Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            Colors.white.withOpacity(0.2),
+                            Colors.white.withOpacity(0.1),
+                          ],
+                        ),
+                        borderRadius:
+                            BorderRadius.circular(DesignTokens.radiusFull),
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.3),
+                          width: 1.5,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: const Icon(
+                        Icons.more_vert,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                    ),
+                    color:
+                        Theme.of(context).colorScheme.surface.withOpacity(0.98),
+                    elevation: 8,
+                    shadowColor: Colors.black.withOpacity(0.3),
+                    shape: RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius.circular(DesignTokens.radiusLg),
+                      side: BorderSide(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .outline
+                            .withOpacity(0.2),
+                        width: 1,
+                      ),
+                    ),
+                    offset: const Offset(0, 50),
+                    onSelected: (value) {
+                      switch (value) {
+                        case 'bookmark':
+                          final bookmarkProvider =
+                              Provider.of<BookmarkProvider>(context,
+                                  listen: false);
+                          _toggleBookmark(bookmarkProvider);
+                          break;
+                        case 'github':
+                          _openInGitHub();
+                          break;
+                        case 'bookmarks':
+                          _navigateToBookmarks(context);
+                          break;
+                        case 'compare':
+                          _navigateToCompare(context);
+                          break;
+                        case 'refresh':
+                          _loadAnalysis();
+                          break;
+                      }
+                    },
+                    itemBuilder: (BuildContext context) => [
+                      // Bookmark Menu Item
+                      PopupMenuItem<String>(
+                        value: 'bookmark',
+                        height: 48,
+                        child: Consumer<BookmarkProvider>(
+                          builder: (context, bookmarkProvider, child) {
+                            final isBookmarked = bookmarkProvider.isBookmarked(
+                              _analysis!.owner,
+                              _analysis!.repo,
+                            );
+                            return Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(6),
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .primary
+                                        .withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(
+                                        DesignTokens.radiusSm),
+                                  ),
+                                  child: Icon(
+                                    isBookmarked
+                                        ? Icons.bookmark
+                                        : Icons.bookmark_border,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                    size: 18,
+                                  ),
+                                ),
+                                const SizedBox(width: DesignTokens.space3),
+                                Expanded(
+                                  child: Text(
+                                    isBookmarked
+                                        ? 'Remove Bookmark'
+                                        : 'Add Bookmark',
+                                    style: TextStyle(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurface,
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
                         ),
                       ),
-                      onPressed: () => _toggleBookmark(bookmarkProvider),
-                      tooltip:
-                          isBookmarked ? 'Remove Bookmark' : 'Add Bookmark',
-                    );
-                  },
-                ),
-                // Open in GitHub Button
-                IconButton(
-                  icon: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: DesignTokens.glassmorphism(context),
-                    child: const Icon(Icons.open_in_new, color: Colors.white),
+                      // GitHub Menu Item
+                      PopupMenuItem<String>(
+                        value: 'github',
+                        height: 48,
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .primary
+                                    .withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(
+                                    DesignTokens.radiusSm),
+                              ),
+                              child: Icon(
+                                Icons.open_in_new,
+                                color: Theme.of(context).colorScheme.primary,
+                                size: 18,
+                              ),
+                            ),
+                            const SizedBox(width: DesignTokens.space3),
+                            Expanded(
+                              child: Text(
+                                'Open in GitHub',
+                                style: TextStyle(
+                                  color:
+                                      Theme.of(context).colorScheme.onSurface,
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      // Bookmarks List Menu Item
+                      PopupMenuItem<String>(
+                        value: 'bookmarks',
+                        height: 48,
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .primary
+                                    .withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(
+                                    DesignTokens.radiusSm),
+                              ),
+                              child: Icon(
+                                Icons.bookmarks,
+                                color: Theme.of(context).colorScheme.primary,
+                                size: 18,
+                              ),
+                            ),
+                            const SizedBox(width: DesignTokens.space3),
+                            Expanded(
+                              child: Text(
+                                'View Bookmarks',
+                                style: TextStyle(
+                                  color:
+                                      Theme.of(context).colorScheme.onSurface,
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      // Compare Menu Item
+                      PopupMenuItem<String>(
+                        value: 'compare',
+                        height: 48,
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .primary
+                                    .withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(
+                                    DesignTokens.radiusSm),
+                              ),
+                              child: Icon(
+                                Icons.compare_arrows,
+                                color: Theme.of(context).colorScheme.primary,
+                                size: 18,
+                              ),
+                            ),
+                            const SizedBox(width: DesignTokens.space3),
+                            Expanded(
+                              child: Text(
+                                'Compare Repositories',
+                                style: TextStyle(
+                                  color:
+                                      Theme.of(context).colorScheme.onSurface,
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      // Refresh Menu Item
+                      PopupMenuItem<String>(
+                        value: 'refresh',
+                        height: 48,
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .primary
+                                    .withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(
+                                    DesignTokens.radiusSm),
+                              ),
+                              child: Icon(
+                                Icons.refresh,
+                                color: Theme.of(context).colorScheme.primary,
+                                size: 18,
+                              ),
+                            ),
+                            const SizedBox(width: DesignTokens.space3),
+                            Expanded(
+                              child: Text(
+                                'Refresh Data',
+                                style: TextStyle(
+                                  color:
+                                      Theme.of(context).colorScheme.onSurface,
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                  onPressed: _openInGitHub,
-                  tooltip: 'Open in GitHub',
                 ),
               ],
-              // View Bookmarks Button
-              IconButton(
-                icon: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: DesignTokens.glassmorphism(context),
-                  child: const Icon(Icons.bookmarks, color: Colors.white),
-                ),
-                onPressed: () => _navigateToBookmarks(context),
-                tooltip: 'View Bookmarks',
-              ),
-              // Compare Repositories Button
-              IconButton(
-                icon: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: DesignTokens.glassmorphism(context),
-                  child: const Icon(Icons.compare_arrows, color: Colors.white),
-                ),
-                onPressed: () => _navigateToCompare(context),
-                tooltip: 'Compare Repositories',
-              ),
-              IconButton(
-                icon: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: DesignTokens.glassmorphism(context),
-                  child: const Icon(Icons.refresh, color: Colors.white),
-                ),
-                onPressed: _loadAnalysis,
-                tooltip: 'Refresh',
-              ),
               const SizedBox(width: DesignTokens.space4),
             ],
           ),
@@ -523,10 +760,13 @@ class _DashboardScreenState extends State<DashboardScreen>
   }
 
   Widget _buildQuickStat(String label, String value) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 768;
+
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: DesignTokens.space3,
-        vertical: DesignTokens.space2,
+      padding: EdgeInsets.symmetric(
+        horizontal: isMobile ? DesignTokens.space2 : DesignTokens.space3,
+        vertical: isMobile ? DesignTokens.space1 : DesignTokens.space2,
       ),
       decoration: DesignTokens.glassmorphism(context),
       child: Column(
@@ -537,12 +777,14 @@ class _DashboardScreenState extends State<DashboardScreen>
                 (DesignTokens.headingSm(context) ?? const TextStyle()).copyWith(
               color: Colors.white,
               fontWeight: FontWeight.bold,
+              fontSize: isMobile ? 14 : 16,
             ),
           ),
           Text(
             label,
             style: (DesignTokens.bodyXs(context) ?? const TextStyle()).copyWith(
               color: Colors.white.withOpacity(0.8),
+              fontSize: isMobile ? 10 : 12,
             ),
           ),
         ],
@@ -580,9 +822,13 @@ class _DashboardScreenState extends State<DashboardScreen>
           onRefresh: _loadAnalysis,
           child: Padding(
             padding: EdgeInsets.all(
-              MediaQuery.of(context).size.width > 1024
-                  ? DesignTokens.space8
-                  : DesignTokens.space6,
+              MediaQuery.of(context).size.width < 600
+                  ? DesignTokens.space3
+                  : MediaQuery.of(context).size.width > 1024
+                      ? DesignTokens
+                          .space4 // Reduced from space8 to space4 for wider cards
+                      : DesignTokens
+                          .space5, // Reduced from space6 to space5 for tablets
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -606,185 +852,292 @@ class _DashboardScreenState extends State<DashboardScreen>
   Widget _buildStatsSection() {
     final stats = _analysis!.stats;
     final size = MediaQuery.of(context).size;
-    final isDesktop = size.width > 1024;
+    final isMobile = size.width < 768;
 
     final statsData = [
       {
         'label': 'Stars',
         'value': stats.stars,
-        'icon': Icons.star_outline,
-        'color': Colors.amber
+        'icon': Icons.star,
+        'color': Colors.amber,
+        'gradient': [Colors.amber.shade400, Colors.orange.shade500],
+        'description': 'Community Interest'
       },
       {
         'label': 'Forks',
         'value': stats.forks,
         'icon': Icons.fork_right,
-        'color': Colors.blue
+        'color': Colors.blue,
+        'gradient': [Colors.blue.shade400, Colors.indigo.shade500],
+        'description': 'Code Adoption'
       },
       {
         'label': 'Open Issues',
         'value': stats.openIssues,
-        'icon': Icons.bug_report_outlined,
-        'color': Colors.red
+        'icon': Icons.bug_report,
+        'color': Colors.red,
+        'gradient': [Colors.red.shade400, Colors.pink.shade500],
+        'description': 'Active Development'
       },
       {
         'label': 'License',
         'value': stats.license ?? 'None',
-        'icon': Icons.gavel_outlined,
+        'icon': Icons.gavel,
         'color': Colors.green,
+        'gradient': [Colors.green.shade400, Colors.teal.shade500],
+        'description': 'Legal Framework',
         'isString': true
       },
     ];
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(DesignTokens.space2),
-              decoration: BoxDecoration(
-                gradient: DesignTokens.primaryGradient(context),
-                borderRadius: BorderRadius.circular(DesignTokens.radiusSm),
+    return Container(
+      margin: EdgeInsets.symmetric(
+        horizontal: isMobile ? DesignTokens.space2 : DesignTokens.space4,
+        vertical: DesignTokens.space2,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Enhanced Header
+          Container(
+            padding: const EdgeInsets.all(DesignTokens.space3),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                  Theme.of(context).colorScheme.secondary.withOpacity(0.1),
+                ],
               ),
-              child: const Icon(
-                Icons.analytics_outlined,
-                color: Colors.white,
-                size: 20,
+              borderRadius: BorderRadius.circular(DesignTokens.radiusLg),
+              border: Border.all(
+                color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+                width: 1,
               ),
             ),
-            const SizedBox(width: DesignTokens.space3),
-            Text(
-              'Repository Statistics',
-              style: (DesignTokens.headingMd(context) ?? const TextStyle())
-                  .copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(DesignTokens.space2),
+                  decoration: BoxDecoration(
+                    gradient: DesignTokens.primaryGradient(context),
+                    borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .primary
+                            .withOpacity(0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: const Icon(
+                    Icons.analytics_rounded,
+                    color: Colors.white,
+                    size: 22,
+                  ),
+                ),
+                const SizedBox(width: DesignTokens.space3),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Repository Statistics',
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
+                      ),
+                      Text(
+                        'Real-time metrics and insights',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurface
+                                  .withOpacity(0.7),
+                            ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-        const SizedBox(height: DesignTokens.space4),
-        if (isDesktop)
-          // Desktop layout - 4 columns
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 4,
-              childAspectRatio: 2.8, // Increased to prevent overflow
-              crossAxisSpacing: DesignTokens.space4,
-              mainAxisSpacing: DesignTokens.space4,
-            ),
-            itemCount: statsData.length,
-            itemBuilder: (context, index) => _buildStatCard(statsData[index]),
-          )
-        else
-          // Mobile layout - 2 columns
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              childAspectRatio: 2.2, // Increased to prevent overflow
-              crossAxisSpacing: DesignTokens.space3,
-              mainAxisSpacing: DesignTokens.space3,
-            ),
-            itemCount: statsData.length,
-            itemBuilder: (context, index) => _buildStatCard(statsData[index]),
           ),
-      ],
+          const SizedBox(height: DesignTokens.space4),
+
+          // Stats Grid with single row per card layout
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 1,
+              childAspectRatio: 6.0, // Adjusted for horizontal layout
+              mainAxisSpacing: DesignTokens.space2,
+            ),
+            itemCount: statsData.length,
+            itemBuilder: (context, index) => TweenAnimationBuilder(
+              tween: Tween<double>(begin: 0.0, end: 1.0),
+              duration: Duration(milliseconds: 600 + (index * 100)),
+              curve: Curves.easeOutCubic,
+              builder: (context, double value, child) {
+                return Transform.translate(
+                  offset: Offset(0, 20 * (1 - value)),
+                  child: Opacity(
+                    opacity: value,
+                    child: _buildEnhancedStatCard(statsData[index]),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildStatCard(Map<String, dynamic> stat) {
+  Widget _buildEnhancedStatCard(Map<String, dynamic> stat) {
     final theme = Theme.of(context);
     final color = stat['color'] as Color;
+    final gradient = stat['gradient'] as List<Color>;
     final isString = stat['isString'] as bool? ?? false;
+    final description = stat['description'] as String;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 768;
 
     return Container(
-      decoration: DesignTokens.modernCard(context, elevated: true),
+      height: isMobile ? 80 : 70, // Reduced height
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            theme.colorScheme.surface,
+            theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(DesignTokens.radiusLg),
+        border: Border.all(
+          color: theme.colorScheme.outline.withOpacity(0.2),
+          width: 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: color.withOpacity(0.1),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+          BoxShadow(
+            color: theme.shadowColor.withOpacity(0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(DesignTokens.space3),
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                // Top row with icon and live indicator
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(DesignTokens.space2),
-                      decoration: BoxDecoration(
-                        color: color.withOpacity(0.1),
-                        borderRadius:
-                            BorderRadius.circular(DesignTokens.radiusSm),
+        padding: EdgeInsets.all(isMobile
+            ? DesignTokens.space2
+            : DesignTokens.space3), // Reduced padding
+        child: Row(
+          children: [
+            // Left side - Icon and label
+            Expanded(
+              flex: 2,
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(DesignTokens.space1),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: gradient,
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
                       ),
-                      child: Icon(
-                        stat['icon'] as IconData,
-                        color: color,
-                        size: 18,
-                      ),
-                    ),
-                    const Spacer(),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: DesignTokens.space2,
-                        vertical: DesignTokens.space1,
-                      ),
-                      decoration: BoxDecoration(
-                        color: color.withOpacity(0.1),
-                        borderRadius:
-                            BorderRadius.circular(DesignTokens.radiusFull),
-                      ),
-                      child: Text(
-                        'LIVE',
-                        style: theme.textTheme.labelSmall?.copyWith(
-                          color: color,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 10,
+                      borderRadius:
+                          BorderRadius.circular(DesignTokens.radiusMd),
+                      boxShadow: [
+                        BoxShadow(
+                          color: color.withOpacity(0.3),
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
                         ),
-                      ),
+                      ],
                     ),
-                  ],
-                ),
-
-                // Value with improved visibility
-                Flexible(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: DesignTokens.space2),
-                    child: Text(
-                      isString
-                          ? stat['value'].toString()
-                          : _formatNumber(stat['value'] as int),
-                      style: theme.textTheme.headlineMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: color,
-                        fontSize: isString ? 20 : 32,
-                        height: 1.0,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                    child: Icon(
+                      stat['icon'] as IconData,
+                      color: Colors.white,
+                      size: isMobile ? 20 : 18, // Increased from 18/16
                     ),
                   ),
-                ),
-
-                // Label with better contrast
-                Text(
-                  stat['label'] as String,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onSurface.withOpacity(0.9),
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14,
+                  const SizedBox(width: DesignTokens.space2),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          stat['label'] as String,
+                          style: theme.textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.w600,
+                            color: theme.colorScheme.onSurface,
+                            fontSize:
+                                isMobile ? 16 : 14, // Increased from 14/12
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        if (!isMobile) ...[
+                          const SizedBox(height: 2),
+                          Text(
+                            description,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color:
+                                  theme.colorScheme.onSurface.withOpacity(0.6),
+                              fontSize: 12, // Increased from 10
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ],
+                    ),
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                ],
+              ),
+            ),
+
+            // Right side - Value
+            Expanded(
+              flex: 1,
+              child: Container(
+                alignment: Alignment.centerRight,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    isString
+                        ? stat['value'].toString()
+                        : _formatNumber(stat['value'] as int),
+                    style: theme.textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      foreground: Paint()
+                        ..shader = LinearGradient(
+                          colors: gradient,
+                        ).createShader(const Rect.fromLTWH(0, 0, 200, 70)),
+                      fontSize: isMobile ? 28 : 24, // Increased from 24/20
+                      height: 1.0,
+                      shadows: [
+                        Shadow(
+                          color: color.withOpacity(0.3),
+                          offset: const Offset(0, 1),
+                          blurRadius: 2,
+                        ),
+                      ],
+                    ),
+                    textAlign: TextAlign.right,
+                  ),
                 ),
-              ],
-            );
-          },
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -839,9 +1192,11 @@ class _DashboardScreenState extends State<DashboardScreen>
 
   Widget _buildLanguageList() {
     final languages = _analysis!.languages.sortedLanguages;
+    final size = MediaQuery.of(context).size;
+    final isMobile = size.width < 600;
 
     return Column(
-      children: languages.take(5).map((language) {
+      children: languages.take(isMobile ? 3 : 5).map((language) {
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 4.0),
           child: Row(
@@ -856,7 +1211,11 @@ class _DashboardScreenState extends State<DashboardScreen>
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: Text(language.name),
+                child: Text(
+                  language.name,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                ),
               ),
               Text(
                 language.formattedPercentage,

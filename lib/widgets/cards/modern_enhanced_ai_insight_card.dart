@@ -2,6 +2,39 @@ import 'package:flutter/material.dart';
 import '../../core/constants/design_tokens.dart';
 import '../../models/repository_analysis.dart';
 
+// Content section types for better text processing
+enum SectionType {
+  heading,
+  paragraph,
+  list,
+}
+
+// Structured content section
+class ContentSection {
+  SectionType type;
+  String content;
+  List<String> items;
+
+  ContentSection({
+    required this.type,
+    required this.content,
+    required this.items,
+  });
+}
+
+// Tab configuration for insights
+class InsightTab {
+  final String title;
+  final IconData icon;
+  final Color color;
+
+  const InsightTab({
+    required this.title,
+    required this.icon,
+    required this.color,
+  });
+}
+
 class ModernEnhancedAiInsightCard extends StatefulWidget {
   final EnhancedAiInsight enhancedInsight;
 
@@ -17,297 +50,169 @@ class ModernEnhancedAiInsightCard extends StatefulWidget {
 
 class _ModernEnhancedAiInsightCardState
     extends State<ModernEnhancedAiInsightCard> with TickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _fadeAnimation;
-  late Animation<Offset> _slideAnimation;
-  int _selectedIndex = 0;
-  PageController _pageController = PageController();
+  late TabController _tabController;
 
-  final List<InsightConfig> _insights = [
-    InsightConfig(
-      title: 'Repository Summary',
+  final List<InsightTab> _tabs = [
+    InsightTab(
+      title: 'Summary',
       icon: Icons.description_outlined,
-      gradient: [Color(0xFF667eea), Color(0xFF764ba2)],
-      accentColor: Color(0xFF667eea),
+      color: Colors.blue,
     ),
-    InsightConfig(
-      title: 'Language Analysis',
+    InsightTab(
+      title: 'Languages',
       icon: Icons.code_outlined,
-      gradient: [Color(0xFFf093fb), Color(0xFFf5576c)],
-      accentColor: Color(0xFFf093fb),
+      color: Colors.green,
     ),
-    InsightConfig(
-      title: 'Contribution Patterns',
-      icon: Icons.people_outline,
-      gradient: [Color(0xFF4facfe), Color(0xFF00f2fe)],
-      accentColor: Color(0xFF4facfe),
+    InsightTab(
+      title: 'Activity',
+      icon: Icons.timeline_outlined,
+      color: Colors.purple,
     ),
   ];
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      duration: DesignTokens.durationSlow,
-      vsync: this,
-    );
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeInOut,
-    ));
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.2),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeOutCubic,
-    ));
-    _controller.forward();
+    _tabController = TabController(length: _tabs.length, vsync: this);
   }
 
   @override
   void dispose() {
-    _controller.dispose();
-    _pageController.dispose();
+    _tabController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final size = MediaQuery.of(context).size;
-    final isDesktop = size.width > 1024;
+    final colorScheme = theme.colorScheme;
+    final screenWidth = MediaQuery.of(context).size.width;
 
-    return FadeTransition(
-      opacity: _fadeAnimation,
-      child: SlideTransition(
-        position: _slideAnimation,
+    // Responsive width constraints - increased for wider card
+    final maxWidth = screenWidth > 1400
+        ? screenWidth * 0.95 // Very wide screens: 95% of screen width
+        : screenWidth > 1024
+            ? screenWidth * 0.92 // Desktop: 92% of screen width
+            : screenWidth > 768
+                ? screenWidth * 0.95 // Tablet: 95% of screen width
+                : screenWidth - 32; // Mobile: full width minus smaller padding
+
+    // Minimal margins for wider appearance
+    final cardMargin = screenWidth > 1024
+        ? const EdgeInsets.symmetric(
+            horizontal: DesignTokens.space2,
+            vertical: DesignTokens.space4) // Much less margin on desktop
+        : screenWidth > 768
+            ? const EdgeInsets.symmetric(
+                horizontal: DesignTokens.space3,
+                vertical: DesignTokens.space4) // Less margin on tablet
+            : const EdgeInsets.symmetric(
+                horizontal: DesignTokens.space4, vertical: DesignTokens.space4);
+
+    return Container(
+      constraints: BoxConstraints(
+        maxWidth: maxWidth,
+        minHeight: 400,
+        maxHeight: 700,
+      ),
+      child: Card(
+        elevation: 2,
+        margin: cardMargin,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(DesignTokens.radiusLg),
+        ),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            // Header with gradient
+            // Header
             Container(
-              padding: EdgeInsets.all(
-                isDesktop ? DesignTokens.space8 : DesignTokens.space6,
-              ),
+              width: double.infinity,
+              padding: screenWidth > 1024
+                  ? const EdgeInsets.all(
+                      DesignTokens.space6) // More padding on desktop
+                  : const EdgeInsets.all(DesignTokens.space5),
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    theme.colorScheme.primary.withOpacity(0.1),
-                    theme.colorScheme.secondary.withOpacity(0.05),
-                  ],
-                ),
+                color: colorScheme.primaryContainer.withOpacity(0.3),
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(DesignTokens.radiusLg),
                   topRight: Radius.circular(DesignTokens.radiusLg),
                 ),
               ),
               child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(DesignTokens.space3),
-                    decoration: BoxDecoration(
-                      gradient: DesignTokens.primaryGradient(context),
-                      borderRadius:
-                          BorderRadius.circular(DesignTokens.radiusMd),
-                      boxShadow: [
-                        BoxShadow(
-                          color: theme.colorScheme.primary.withOpacity(0.3),
-                          blurRadius: 8,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: const Icon(
-                      Icons.psychology_outlined,
-                      color: Colors.white,
-                      size: 28,
-                    ),
+                  Icon(
+                    Icons.psychology_outlined,
+                    color: colorScheme.primary,
+                    size: 28, // Larger icon
                   ),
                   const SizedBox(width: DesignTokens.space4),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
                           'AI Analysis',
-                          style: (DesignTokens.headingLg(context) ??
-                                  const TextStyle())
-                              .copyWith(
+                          style: theme.textTheme.headlineSmall?.copyWith(
                             fontWeight: FontWeight.bold,
-                            color: theme.colorScheme.primary,
+                            color: colorScheme.onSurface,
                           ),
                         ),
+                        const SizedBox(height: DesignTokens.space1),
                         Text(
-                          'Powered by advanced machine learning',
-                          style: (DesignTokens.bodySm(context) ??
-                                  const TextStyle())
-                              .copyWith(
-                            color: theme.colorScheme.onSurface.withOpacity(0.7),
+                          'Intelligent insights powered by advanced AI',
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: colorScheme.onSurface.withOpacity(0.7),
                           ),
                         ),
                       ],
                     ),
                   ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: DesignTokens.space3,
-                      vertical: DesignTokens.space2,
+                  const SizedBox(width: DesignTokens.space3),
+                  Chip(
+                    label: const Text('AI'),
+                    backgroundColor: colorScheme.primaryContainer,
+                    labelStyle: TextStyle(
+                      color: colorScheme.onPrimaryContainer,
+                      fontWeight: FontWeight.w600,
                     ),
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.primaryContainer,
-                      borderRadius:
-                          BorderRadius.circular(DesignTokens.radiusFull),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.auto_awesome,
-                          size: 16,
-                          color: theme.colorScheme.onPrimaryContainer,
-                        ),
-                        const SizedBox(width: DesignTokens.space1),
-                        Text(
-                          'PREMIUM',
-                          style: theme.textTheme.labelSmall?.copyWith(
-                            color: theme.colorScheme.onPrimaryContainer,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
                 ],
               ),
             ),
 
-            // Navigation tabs
-            Container(
-              decoration: DesignTokens.modernCard(context),
-              child: Column(
+            // Tab Bar
+            TabBar(
+              controller: _tabController,
+              tabs: _tabs
+                  .map((tab) => Tab(
+                        icon: Icon(tab.icon, size: 24), // Only show icon
+                      ))
+                  .toList(),
+              labelColor: colorScheme.primary,
+              unselectedLabelColor: colorScheme.onSurface.withOpacity(0.6),
+              indicatorColor: colorScheme.primary,
+              indicatorSize: TabBarIndicatorSize.tab,
+              dividerColor: colorScheme.outline.withOpacity(0.2),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: DesignTokens.space4),
+            ),
+
+            // Tab Content
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
                 children: [
-                  Container(
-                    height: 60,
-                    padding: const EdgeInsets.all(DesignTokens.space2),
-                    child: Row(
-                      children: _insights.asMap().entries.map((entry) {
-                        int index = entry.key;
-                        InsightConfig config = entry.value;
-                        bool isSelected = _selectedIndex == index;
-
-                        return Expanded(
-                          child: GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                _selectedIndex = index;
-                              });
-                              _pageController.animateToPage(
-                                index,
-                                duration: DesignTokens.durationNormal,
-                                curve: Curves.easeInOut,
-                              );
-                            },
-                            child: AnimatedContainer(
-                              duration: DesignTokens.durationNormal,
-                              margin: const EdgeInsets.symmetric(
-                                  horizontal: DesignTokens.space1),
-                              decoration: BoxDecoration(
-                                gradient: isSelected
-                                    ? LinearGradient(colors: config.gradient)
-                                    : null,
-                                color: isSelected
-                                    ? null
-                                    : theme.colorScheme.surfaceContainerHighest,
-                                borderRadius: BorderRadius.circular(
-                                    DesignTokens.radiusMd),
-                                boxShadow: isSelected
-                                    ? [
-                                        BoxShadow(
-                                          color: config.accentColor
-                                              .withOpacity(0.3),
-                                          blurRadius: 8,
-                                          offset: const Offset(0, 2),
-                                        ),
-                                      ]
-                                    : null,
-                              ),
-                              child: Center(
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      config.icon,
-                                      color: isSelected
-                                          ? Colors.white
-                                          : theme.colorScheme.onSurface
-                                              .withOpacity(0.7),
-                                      size: 18,
-                                    ),
-                                    if (isDesktop) ...[
-                                      const SizedBox(
-                                          width: DesignTokens.space2),
-                                      Flexible(
-                                        child: Text(
-                                          config.title,
-                                          style: theme.textTheme.labelMedium
-                                              ?.copyWith(
-                                            color: isSelected
-                                                ? Colors.white
-                                                : theme.colorScheme.onSurface
-                                                    .withOpacity(0.7),
-                                            fontWeight: isSelected
-                                                ? FontWeight.bold
-                                                : FontWeight.normal,
-                                          ),
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-                                    ],
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ),
-
-                  // Content
-                  SizedBox(
-                    height: isDesktop ? 400 : 350,
-                    child: PageView(
-                      controller: _pageController,
-                      onPageChanged: (index) {
-                        setState(() {
-                          _selectedIndex = index;
-                        });
-                      },
-                      children: [
-                        _buildInsightContent(
-                          context,
-                          widget.enhancedInsight.repositorySummary,
-                          _insights[0],
-                        ),
-                        _buildInsightContent(
-                          context,
-                          widget.enhancedInsight.languageAnalysis,
-                          _insights[1],
-                        ),
-                        _buildInsightContent(
-                          context,
-                          widget.enhancedInsight.contributionPatterns,
-                          _insights[2],
-                        ),
-                      ],
-                    ),
-                  ),
+                  _buildInsightContent(
+                      widget.enhancedInsight.repositorySummary, _tabs[0]),
+                  _buildInsightContent(
+                      widget.enhancedInsight.languageAnalysis, _tabs[1]),
+                  _buildInsightContent(
+                      widget.enhancedInsight.contributionPatterns, _tabs[2]),
                 ],
               ),
             ),
@@ -317,14 +222,10 @@ class _ModernEnhancedAiInsightCardState
     );
   }
 
-  Widget _buildInsightContent(
-    BuildContext context,
-    IndividualAiInsight insight,
-    InsightConfig config,
-  ) {
+  Widget _buildInsightContent(IndividualAiInsight insight, InsightTab tab) {
     final theme = Theme.of(context);
-    final size = MediaQuery.of(context).size;
-    final isDesktop = size.width > 1024;
+    final colorScheme = theme.colorScheme;
+    final screenWidth = MediaQuery.of(context).size.width;
 
     if (!insight.hasContent) {
       return Center(
@@ -332,15 +233,15 @@ class _ModernEnhancedAiInsightCardState
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              Icons.error_outline,
+              Icons.info_outline,
               size: 48,
-              color: theme.colorScheme.onSurface.withOpacity(0.3),
+              color: colorScheme.onSurface.withOpacity(0.3),
             ),
-            const SizedBox(height: DesignTokens.space4),
+            const SizedBox(height: DesignTokens.space3),
             Text(
-              'No ${config.title.toLowerCase()} available',
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurface.withOpacity(0.5),
+              'No ${tab.title.toLowerCase()} available',
+              style: theme.textTheme.bodyLarge?.copyWith(
+                color: colorScheme.onSurface.withOpacity(0.6),
               ),
             ),
           ],
@@ -348,154 +249,179 @@ class _ModernEnhancedAiInsightCardState
       );
     }
 
-    // Check if this is a fallback message (AI service unavailable)
-    final isAiServiceError =
+    final isError =
         insight.content.contains('AI analysis temporarily unavailable');
 
     return SingleChildScrollView(
-      padding: EdgeInsets.all(
-        isDesktop ? DesignTokens.space8 : DesignTokens.space6,
-      ),
+      padding: screenWidth > 1024
+          ? const EdgeInsets.all(DesignTokens.space6) // More padding on desktop
+          : const EdgeInsets.all(DesignTokens.space5),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          // Insight header with animation
+          // Content Header
           Container(
-            padding: const EdgeInsets.all(DesignTokens.space4),
+            width: double.infinity,
+            padding: screenWidth > 1024
+                ? const EdgeInsets.all(DesignTokens.space5)
+                : const EdgeInsets.all(DesignTokens.space4),
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: isAiServiceError
-                    ? [
-                        Colors.orange.withOpacity(0.1),
-                        Colors.orange.withOpacity(0.05),
-                      ]
-                    : [
-                        config.accentColor.withOpacity(0.1),
-                        config.accentColor.withOpacity(0.05),
-                      ],
-              ),
+              color: isError
+                  ? colorScheme.errorContainer
+                  : tab.color.withOpacity(0.1),
               borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
               border: Border.all(
-                color: isAiServiceError
-                    ? Colors.orange.withOpacity(0.3)
-                    : config.accentColor.withOpacity(0.2),
+                color: isError ? colorScheme.error : tab.color.withOpacity(0.3),
                 width: 1,
               ),
             ),
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Container(
                   padding: const EdgeInsets.all(DesignTokens.space2),
                   decoration: BoxDecoration(
-                    color: isAiServiceError
-                        ? Colors.orange.withOpacity(0.2)
-                        : config.accentColor.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(DesignTokens.radiusSm),
+                    color: isError
+                        ? colorScheme.error.withOpacity(0.1)
+                        : tab.color.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
                   ),
                   child: Icon(
-                    isAiServiceError ? Icons.refresh : config.icon,
-                    color:
-                        isAiServiceError ? Colors.orange : config.accentColor,
-                    size: 24,
+                    isError ? Icons.warning_amber : tab.icon,
+                    color: isError ? colorScheme.error : tab.color,
+                    size: 24, // Larger icon
                   ),
                 ),
-                const SizedBox(width: DesignTokens.space3),
+                const SizedBox(width: DesignTokens.space4),
                 Expanded(
-                  child: Text(
-                    config.title,
-                    style:
-                        (DesignTokens.headingMd(context) ?? const TextStyle())
-                            .copyWith(
-                      color:
-                          isAiServiceError ? Colors.orange : config.accentColor,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                if (isAiServiceError)
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: DesignTokens.space2,
-                      vertical: DesignTokens.space1,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.orange.withOpacity(0.2),
-                      borderRadius:
-                          BorderRadius.circular(DesignTokens.radiusFull),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.warning_amber,
-                          size: 12,
-                          color: Colors.orange,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        tab.title,
+                        style: theme.textTheme.titleLarge?.copyWith(
+                          color: isError ? colorScheme.error : tab.color,
+                          fontWeight: FontWeight.bold,
                         ),
-                        const SizedBox(width: DesignTokens.space1),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      if (!isError) ...[
+                        const SizedBox(height: DesignTokens.space1),
                         Text(
-                          'RETRY',
-                          style: theme.textTheme.labelSmall?.copyWith(
-                            color: Colors.orange,
-                            fontWeight: FontWeight.bold,
+                          'Detailed analysis and insights',
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: colorScheme.onSurface.withOpacity(0.6),
                           ),
                         ),
                       ],
+                    ],
+                  ),
+                ),
+                if (isError) ...[
+                  const SizedBox(width: DesignTokens.space3),
+                  TextButton.icon(
+                    onPressed: () {
+                      // Handle retry
+                    },
+                    icon: const Icon(Icons.refresh, size: 18),
+                    label: const Text('Retry'),
+                    style: TextButton.styleFrom(
+                      foregroundColor: colorScheme.error,
+                      textStyle: theme.textTheme.labelMedium,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: DesignTokens.space3,
+                        vertical: DesignTokens.space2,
+                      ),
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
                   ),
+                ],
               ],
             ),
           ),
 
-          const SizedBox(height: DesignTokens.space6),
+          const SizedBox(height: DesignTokens.space4),
 
-          // Main content with enhanced typography
+          // Main Content
           Container(
-            padding: const EdgeInsets.all(DesignTokens.space6),
-            decoration: DesignTokens.modernCard(context, elevated: true),
+            width: double.infinity,
+            padding: screenWidth > 1024
+                ? const EdgeInsets.all(
+                    DesignTokens.space6) // More padding on desktop
+                : const EdgeInsets.all(DesignTokens.space5),
+            decoration: BoxDecoration(
+              color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
+              borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                SelectableText.rich(
-                  _parseMarkdownText(insight.content, theme),
-                  style: theme.textTheme.bodyLarge?.copyWith(
-                    height: 1.6,
-                    color: theme.colorScheme.onSurface,
-                    fontSize: 16,
+                // Formatted Content
+                _buildFormattedContent(insight.content, theme, colorScheme),
+
+                const SizedBox(height: DesignTokens.space5),
+
+                // Copy Button
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton.icon(
+                    onPressed: () {
+                      // Copy functionality would be implemented here
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Content copied to clipboard'),
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.copy, size: 16),
+                    label: const Text('Copy'),
+                    style: TextButton.styleFrom(
+                      foregroundColor: colorScheme.primary,
+                      textStyle: theme.textTheme.labelMedium,
+                    ),
                   ),
                 ),
+
                 const SizedBox(height: DesignTokens.space4),
 
-                // Metadata with improved styling
+                // Metadata
                 Container(
-                  padding: const EdgeInsets.all(DesignTokens.space3),
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(DesignTokens.space4),
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.surfaceContainerHighest
-                        .withOpacity(0.5),
+                    color: colorScheme.surfaceContainerHighest.withOpacity(0.5),
                     borderRadius: BorderRadius.circular(DesignTokens.radiusSm),
                   ),
                   child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Icon(
-                        Icons.schedule,
-                        size: 16,
-                        color: theme.colorScheme.onSurface.withOpacity(0.6),
+                        Icons.access_time,
+                        size: 18,
+                        color: colorScheme.onSurface.withOpacity(0.6),
                       ),
-                      const SizedBox(width: DesignTokens.space2),
-                      Text(
-                        'Generated ${_formatDate(insight.generatedAt)}',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSurface.withOpacity(0.6),
-                          fontStyle: FontStyle.italic,
+                      const SizedBox(width: DesignTokens.space3),
+                      Expanded(
+                        child: Text(
+                          'Generated ${_formatTimestamp(insight.generatedAt)}',
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: colorScheme.onSurface.withOpacity(0.6),
+                          ),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      const Spacer(),
+                      const SizedBox(width: DesignTokens.space3),
                       Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: DesignTokens.space2,
-                          vertical: DesignTokens.space1,
+                          horizontal: DesignTokens.space3,
+                          vertical: DesignTokens.space2,
                         ),
                         decoration: BoxDecoration(
-                          color: config.accentColor.withOpacity(0.1),
+                          color: tab.color.withOpacity(0.1),
                           borderRadius:
                               BorderRadius.circular(DesignTokens.radiusFull),
                         ),
@@ -503,16 +429,16 @@ class _ModernEnhancedAiInsightCardState
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(
-                              Icons.auto_awesome,
-                              size: 12,
-                              color: config.accentColor,
+                              Icons.smart_toy,
+                              size: 14,
+                              color: tab.color,
                             ),
-                            const SizedBox(width: DesignTokens.space1),
+                            const SizedBox(width: DesignTokens.space2),
                             Text(
-                              'AI',
-                              style: theme.textTheme.labelSmall?.copyWith(
-                                color: config.accentColor,
-                                fontWeight: FontWeight.bold,
+                              'AI Generated',
+                              style: theme.textTheme.labelMedium?.copyWith(
+                                color: tab.color,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                           ],
@@ -529,84 +455,315 @@ class _ModernEnhancedAiInsightCardState
     );
   }
 
-  String _formatDate(DateTime date) {
-    try {
-      final now = DateTime.now();
-      final difference = now.difference(date);
+  Widget _buildFormattedContent(
+      String content, ThemeData theme, ColorScheme colorScheme) {
+    // Clean and preprocess the content - remove all ** markers first
+    final cleanedContent = content.trim().replaceAll('**', '');
 
-      if (difference.inDays > 0) {
-        return '${difference.inDays} days ago';
-      } else if (difference.inHours > 0) {
-        return '${difference.inHours} hours ago';
-      } else if (difference.inMinutes > 0) {
-        return '${difference.inMinutes} minutes ago';
-      } else {
-        return 'just now';
+    // Split content into logical sections
+    final sections = _parseContentSections(cleanedContent);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: sections.map((section) {
+        return Padding(
+          padding: const EdgeInsets.only(bottom: DesignTokens.space4),
+          child: _buildContentSection(section, theme, colorScheme),
+        );
+      }).toList(),
+    );
+  }
+
+  List<ContentSection> _parseContentSections(String content) {
+    final sections = <ContentSection>[];
+    final lines = content.split('\n').where((line) => line.trim().isNotEmpty);
+
+    ContentSection? currentSection;
+
+    for (final line in lines) {
+      final trimmed = line.trim();
+
+      // Check if it's a heading
+      if (_isHeading(trimmed)) {
+        // Save previous section if exists
+        if (currentSection != null) {
+          sections.add(currentSection);
+        }
+
+        // Start new section
+        currentSection = ContentSection(
+          type: SectionType.heading,
+          content: _cleanHeading(trimmed),
+          items: [],
+        );
       }
-    } catch (e) {
-      return 'recently';
+      // Check if it's a list item
+      else if (_isListItem(trimmed)) {
+        if (currentSection == null) {
+          currentSection = ContentSection(
+            type: SectionType.paragraph,
+            content: '',
+            items: [],
+          );
+        }
+
+        currentSection.items.add(_cleanListItem(trimmed));
+        currentSection.type = SectionType.list;
+      }
+      // Regular content
+      else {
+        if (currentSection == null ||
+            currentSection.type == SectionType.heading) {
+          // Save previous section if it was a heading
+          if (currentSection != null) {
+            sections.add(currentSection);
+          }
+
+          // Start new paragraph section
+          currentSection = ContentSection(
+            type: SectionType.paragraph,
+            content: trimmed,
+            items: [],
+          );
+        } else {
+          // Append to current paragraph
+          currentSection.content +=
+              (currentSection.content.isEmpty ? '' : ' ') + trimmed;
+        }
+      }
+    }
+
+    // Add the last section
+    if (currentSection != null) {
+      sections.add(currentSection);
+    }
+
+    return sections;
+  }
+
+  bool _isHeading(String text) {
+    // Check for various heading patterns
+    final upperCaseWords = text
+        .split(' ')
+        .where((word) => word.isNotEmpty && word[0].toUpperCase() == word[0]);
+
+    // If more than 60% of words start with uppercase, likely a heading
+    if (upperCaseWords.length / text.split(' ').length > 0.6 &&
+        text.length < 80) {
+      return true;
+    }
+
+    // Check for common heading patterns
+    return text.endsWith(':') ||
+        text.startsWith('**') && text.endsWith('**') ||
+        text.toUpperCase() == text && text.length < 50;
+  }
+
+  bool _isListItem(String text) {
+    // Check for bullet points or numbered lists
+    return text.startsWith('•') ||
+        text.startsWith('-') ||
+        text.startsWith('*') ||
+        RegExp(r'^\d+\.').hasMatch(text) ||
+        text.startsWith('**') && text.contains('**') && text.length < 100;
+  }
+
+  String _cleanHeading(String text) {
+    // Remove markdown bold markers
+    if (text.startsWith('**') && text.endsWith('**')) {
+      return text.substring(2, text.length - 2);
+    }
+    // Remove colon if present
+    if (text.endsWith(':')) {
+      return text.substring(0, text.length - 1);
+    }
+    // Remove any remaining ** markers
+    return text.replaceAll('**', '');
+  }
+
+  String _cleanListItem(String text) {
+    // Remove bullet markers
+    if (text.startsWith('•') || text.startsWith('-') || text.startsWith('*')) {
+      return text.substring(1).trim();
+    }
+    // Remove numbered list markers
+    final numberMatch = RegExp(r'^\d+\.\s*').firstMatch(text);
+    if (numberMatch != null) {
+      return text.substring(numberMatch.end);
+    }
+    // Remove all markdown bold markers
+    return text.replaceAll('**', '').trim();
+  }
+
+  Widget _buildContentSection(
+      ContentSection section, ThemeData theme, ColorScheme colorScheme) {
+    switch (section.type) {
+      case SectionType.heading:
+        return _buildHeadingSection(section.content, theme, colorScheme);
+
+      case SectionType.list:
+        return _buildListSection(section.items, theme, colorScheme);
+
+      case SectionType.paragraph:
+        return _buildParagraphSection(section.content, theme, colorScheme);
     }
   }
 
-  // Simple markdown parser for bold text
-  TextSpan _parseMarkdownText(String text, ThemeData theme) {
-    final List<TextSpan> spans = [];
-    final RegExp boldRegex = RegExp(r'\*\*(.*?)\*\*');
-    int lastIndex = 0;
-
-    for (final Match match in boldRegex.allMatches(text)) {
-      // Add text before the bold part
-      if (match.start > lastIndex) {
-        spans.add(TextSpan(
-          text: text.substring(lastIndex, match.start),
-          style: theme.textTheme.bodyLarge?.copyWith(
-            height: 1.6,
-            color: theme.colorScheme.onSurface,
-            fontSize: 16,
+  Widget _buildHeadingSection(
+      String heading, ThemeData theme, ColorScheme colorScheme) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: DesignTokens.space2),
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(
+            color: colorScheme.primary.withOpacity(0.3),
+            width: 1,
           ),
-        ));
-      }
-
-      // Add bold text
-      spans.add(TextSpan(
-        text: match.group(1),
-        style: theme.textTheme.bodyLarge?.copyWith(
-          height: 1.6,
-          color: theme.colorScheme.onSurface,
-          fontSize: 16,
+        ),
+      ),
+      child: Text(
+        heading,
+        style: theme.textTheme.titleLarge?.copyWith(
           fontWeight: FontWeight.bold,
+          color: colorScheme.primary,
+          fontSize: 18,
         ),
-      ));
+      ),
+    );
+  }
 
-      lastIndex = match.end;
+  Widget _buildListSection(
+      List<String> items, ThemeData theme, ColorScheme colorScheme) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: items.map((item) {
+        return Padding(
+          padding: const EdgeInsets.only(
+              bottom: DesignTokens.space3, left: DesignTokens.space2),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Custom bullet point
+              Container(
+                margin: const EdgeInsets.only(top: 10),
+                width: 8,
+                height: 8,
+                decoration: BoxDecoration(
+                  color: colorScheme.primary,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: colorScheme.primary.withOpacity(0.3),
+                      blurRadius: 4,
+                      offset: const Offset(0, 1),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: DesignTokens.space4),
+              Expanded(
+                child: _buildRichTextWithBold(
+                  item,
+                  theme,
+                  colorScheme,
+                  fontSize: 16,
+                ),
+              ),
+            ],
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildParagraphSection(
+      String content, ThemeData theme, ColorScheme colorScheme) {
+    // Check if content contains bold text
+    if (content.contains('**')) {
+      return _buildRichTextWithBold(content, theme, colorScheme);
     }
 
-    // Add remaining text
-    if (lastIndex < text.length) {
-      spans.add(TextSpan(
-        text: text.substring(lastIndex),
+    // Split long paragraphs into more readable chunks
+    final sentences = content.split('.').where((s) => s.trim().isNotEmpty);
+
+    if (sentences.length <= 2) {
+      // Short paragraph - remove any ** markers
+      final cleanedContent = content.replaceAll('**', '');
+      return SelectableText(
+        cleanedContent,
         style: theme.textTheme.bodyLarge?.copyWith(
-          height: 1.6,
-          color: theme.colorScheme.onSurface,
+          height: 1.8,
+          color: colorScheme.onSurface,
           fontSize: 16,
         ),
-      ));
+      );
     }
 
-    return TextSpan(children: spans);
+    // Long paragraph - format as bullet points for better readability
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: sentences.map((sentence) {
+        final trimmed = sentence.trim();
+        if (trimmed.isEmpty) return const SizedBox.shrink();
+
+        return Padding(
+          padding: const EdgeInsets.only(bottom: DesignTokens.space3),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                margin: const EdgeInsets.only(top: 10),
+                width: 6,
+                height: 6,
+                decoration: BoxDecoration(
+                  color: colorScheme.primary.withOpacity(0.6),
+                  shape: BoxShape.circle,
+                ),
+              ),
+              const SizedBox(width: DesignTokens.space4),
+              Expanded(
+                child: SelectableText(
+                  '${trimmed.replaceAll('**', '')}.',
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    height: 1.8,
+                    color: colorScheme.onSurface,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      }).toList(),
+    );
   }
-}
 
-class InsightConfig {
-  final String title;
-  final IconData icon;
-  final List<Color> gradient;
-  final Color accentColor;
+  Widget _buildRichTextWithBold(
+      String text, ThemeData theme, ColorScheme colorScheme,
+      {double fontSize = 16}) {
+    // Since we remove ** markers upfront, just display the cleaned text
+    return SelectableText(
+      text,
+      style: theme.textTheme.bodyLarge?.copyWith(
+        height: 1.8,
+        color: colorScheme.onSurface,
+        fontSize: fontSize,
+      ),
+    );
+  }
 
-  InsightConfig({
-    required this.title,
-    required this.icon,
-    required this.gradient,
-    required this.accentColor,
-  });
+  String _formatTimestamp(DateTime date) {
+    final now = DateTime.now();
+    final difference = now.difference(date);
+
+    if (difference.inDays > 0) {
+      return '${difference.inDays}d ago';
+    } else if (difference.inHours > 0) {
+      return '${difference.inHours}h ago';
+    } else if (difference.inMinutes > 0) {
+      return '${difference.inMinutes}m ago';
+    } else {
+      return 'now';
+    }
+  }
 }

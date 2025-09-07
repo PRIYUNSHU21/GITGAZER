@@ -334,26 +334,28 @@ class _HeroSectionState extends State<HeroSection>
       Positioned(
         top: 50,
         left: 30,
-        child: _buildFloatingCircle(
-            theme.colorScheme.primary.withOpacity(0.1), 80, 3),
+        child: _buildFloatingCircle(theme.colorScheme.primary.withOpacity(0.1),
+            widget.isDesktop ? 80 : 50, 3),
       ),
       Positioned(
         top: 200,
         right: 50,
         child: _buildFloatingCircle(
-            theme.colorScheme.secondary.withOpacity(0.1), 120, 4),
+            theme.colorScheme.secondary.withOpacity(0.1),
+            widget.isDesktop ? 120 : 70,
+            4),
       ),
       Positioned(
         bottom: 100,
         left: 80,
-        child: _buildFloatingCircle(
-            theme.colorScheme.tertiary.withOpacity(0.1), 60, 2.5),
+        child: _buildFloatingCircle(theme.colorScheme.tertiary.withOpacity(0.1),
+            widget.isDesktop ? 60 : 40, 2.5),
       ),
       Positioned(
         bottom: 50,
         right: 100,
-        child: _buildFloatingCircle(
-            theme.colorScheme.primary.withOpacity(0.08), 100, 3.5),
+        child: _buildFloatingCircle(theme.colorScheme.primary.withOpacity(0.08),
+            widget.isDesktop ? 100 : 60, 3.5),
       ),
     ];
   }

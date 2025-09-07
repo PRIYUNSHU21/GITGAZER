@@ -286,6 +286,7 @@ class SearchSection extends StatelessWidget {
               child: isLoading
                   ? Row(
                       mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         const SizedBox(
                           width: 24,
@@ -297,18 +298,21 @@ class SearchSection extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: DesignTokens.space3),
-                        Text(
-                          'Analyzing...',
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 16,
+                        Flexible(
+                          child: Text(
+                            'Analyzing...',
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                            ),
                           ),
                         ),
                       ],
                     )
                   : Row(
                       mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         Container(
                           padding: const EdgeInsets.all(4),
@@ -324,13 +328,15 @@ class SearchSection extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: DesignTokens.space3),
-                        Text(
-                          'Analyze Repository',
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 16,
-                            letterSpacing: 0.2,
+                        Flexible(
+                          child: Text(
+                            'Analyze',
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 16,
+                              letterSpacing: 0.2,
+                            ),
                           ),
                         ),
                       ],

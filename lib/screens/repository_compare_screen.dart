@@ -193,6 +193,9 @@ class _RepositoryCompareScreenState extends State<RepositoryCompareScreen>
             child: Text(
               isMobile ? 'Compare' : 'Repository Comparison',
               overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: isMobile ? 16 : null,
+              ),
             ),
           ),
         ],
@@ -218,7 +221,7 @@ class _RepositoryCompareScreenState extends State<RepositoryCompareScreen>
     return SingleChildScrollView(
       controller: _scrollController,
       padding:
-          EdgeInsets.all(isMobile ? DesignTokens.space4 : DesignTokens.space6),
+          EdgeInsets.all(isMobile ? DesignTokens.space3 : DesignTokens.space6),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -249,7 +252,7 @@ class _RepositoryCompareScreenState extends State<RepositoryCompareScreen>
 
     return Container(
       padding:
-          EdgeInsets.all(isMobile ? DesignTokens.space6 : DesignTokens.space8),
+          EdgeInsets.all(isMobile ? DesignTokens.space4 : DesignTokens.space8),
       decoration: DesignTokens.glassmorphism(
         context,
         blur: 15,
@@ -296,8 +299,44 @@ class _RepositoryCompareScreenState extends State<RepositoryCompareScreen>
 
   Widget _buildRepositoryInputs(ThemeData theme) {
     final isMobile = MediaQuery.of(context).size.width < 768;
+    final isVerySmall = MediaQuery.of(context).size.width < 480;
 
-    if (isMobile) {
+    if (isVerySmall) {
+      // Very small screens: Stack vertically
+      return Column(
+        children: [
+          RepositorySelector(
+            title: 'Repository 1',
+            ownerController: _owner1Controller,
+            repoController: _repo1Controller,
+            icon: Icons.folder_outlined,
+            color: theme.colorScheme.primary,
+          ),
+          const SizedBox(height: DesignTokens.space4),
+          Container(
+            padding: const EdgeInsets.all(DesignTokens.space2),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.surfaceContainerHighest,
+              borderRadius: BorderRadius.circular(DesignTokens.radiusFull),
+            ),
+            child: Icon(
+              Icons.compare_arrows_rounded,
+              color: theme.colorScheme.primary,
+              size: 16,
+            ),
+          ),
+          const SizedBox(height: DesignTokens.space4),
+          RepositorySelector(
+            title: 'Repository 2',
+            ownerController: _owner2Controller,
+            repoController: _repo2Controller,
+            icon: Icons.folder_outlined,
+            color: theme.colorScheme.secondary,
+          ),
+        ],
+      );
+    } else if (isMobile) {
+      // Mobile: Stack vertically with larger spacing
       return Column(
         children: [
           RepositorySelector(
@@ -330,44 +369,45 @@ class _RepositoryCompareScreenState extends State<RepositoryCompareScreen>
           ),
         ],
       );
+    } else {
+      // Desktop: Side by side
+      return Row(
+        children: [
+          Expanded(
+            child: RepositorySelector(
+              title: 'Repository 1',
+              ownerController: _owner1Controller,
+              repoController: _repo1Controller,
+              icon: Icons.folder_outlined,
+              color: theme.colorScheme.primary,
+            ),
+          ),
+          const SizedBox(width: DesignTokens.space4),
+          Container(
+            padding: const EdgeInsets.all(DesignTokens.space3),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.surfaceContainerHighest,
+              borderRadius: BorderRadius.circular(DesignTokens.radiusFull),
+            ),
+            child: Icon(
+              Icons.compare_arrows_rounded,
+              color: theme.colorScheme.primary,
+              size: 20,
+            ),
+          ),
+          const SizedBox(width: DesignTokens.space4),
+          Expanded(
+            child: RepositorySelector(
+              title: 'Repository 2',
+              ownerController: _owner2Controller,
+              repoController: _repo2Controller,
+              icon: Icons.folder_outlined,
+              color: theme.colorScheme.secondary,
+            ),
+          ),
+        ],
+      );
     }
-
-    return Row(
-      children: [
-        Expanded(
-          child: RepositorySelector(
-            title: 'Repository 1',
-            ownerController: _owner1Controller,
-            repoController: _repo1Controller,
-            icon: Icons.folder_outlined,
-            color: theme.colorScheme.primary,
-          ),
-        ),
-        const SizedBox(width: DesignTokens.space4),
-        Container(
-          padding: const EdgeInsets.all(DesignTokens.space3),
-          decoration: BoxDecoration(
-            color: theme.colorScheme.surfaceContainerHighest,
-            borderRadius: BorderRadius.circular(DesignTokens.radiusFull),
-          ),
-          child: Icon(
-            Icons.compare_arrows_rounded,
-            color: theme.colorScheme.primary,
-            size: 20,
-          ),
-        ),
-        const SizedBox(width: DesignTokens.space4),
-        Expanded(
-          child: RepositorySelector(
-            title: 'Repository 2',
-            ownerController: _owner2Controller,
-            repoController: _repo2Controller,
-            icon: Icons.folder_outlined,
-            color: theme.colorScheme.secondary,
-          ),
-        ),
-      ],
-    );
   }
 
   Widget _buildActionButton(ThemeData theme) {
@@ -396,7 +436,7 @@ class _RepositoryCompareScreenState extends State<RepositoryCompareScreen>
       decoration: DesignTokens.glassmorphism(context),
       child: Column(
         children: [
-          const LoadingWidget(message: 'Analyzing repositories...'),
+          const LoadingWidget(message: 'Analysing..'),
           const SizedBox(height: DesignTokens.space4),
           Text(
             'This may take a few moments while we fetch and analyze both repositories.',
